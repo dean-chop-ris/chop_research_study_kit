@@ -14,39 +14,26 @@ public class ChopRKConsentDocument: ORKConsentDocument {
     override init() {
 
         super.init()
+    }
+    
+    func addSection(sectionType: ORKConsentSectionType,
+                             summary: String,
+                             content: String) {
+
+        let section = ORKConsentSection(type: sectionType)
         
-        self.title = "Example Consent"
+        section.summary = summary
+        section.content = content
         
-        //////////////////////////////////////////////////////////////////////
-        // Consent Sections
-        //////////////////////////////////////////////////////////////////////
-        let consentSectionTypes: [ORKConsentSectionType] = [
-            .overview,
-            .dataGathering,
-            .privacy,
-            .dataUse,
-            .timeCommitment,
-            .studySurvey,
-            .studyTasks,
-            .withdrawing
-        ]
-        
-        // Iterates through sections, adding the same summary and content,
-        // for purposes of brevity. A real app, would, of course, have different content
-        // for each section.
-        let consentSections: [ORKConsentSection] = consentSectionTypes.map { contentSectionType in
-            let consentSection = ORKConsentSection(type: contentSectionType)
-            consentSection.summary = "If you wish to complete this study..."
-            consentSection.content = "In this study you will be asked five (wait, no, three!) questions. You will also have your voice recorded for 10 seconds."
-            
-            return consentSection
+        if sections == nil {
+            sections = [ORKConsentSection]()
         }
         
-        self.sections = consentSections
+        sections?.append(section)
+    }
+
+    func includeSignature() {
         
-        //////////////////////////////////////////////////////////////////////
-        // Signature
-        //////////////////////////////////////////////////////////////////////
         self.addSignature(ORKConsentSignature(forPersonWithTitle: nil, dateFormatString: nil, identifier: "ConsentDocumentParticipantSignature"))
         
         // Note: An ORKConsentSignature can also be pre-populated with a name, image and date. This is useful
@@ -56,5 +43,4 @@ public class ChopRKConsentDocument: ORKConsentDocument {
     required public init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
 }

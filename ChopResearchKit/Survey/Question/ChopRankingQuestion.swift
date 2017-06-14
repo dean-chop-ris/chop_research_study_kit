@@ -9,7 +9,7 @@
 import Foundation
 import ResearchKit
 
-struct ChopRankingQuestion: ChopSurveyQuestion {
+struct ChopRankingQuestion {
 
     init(withStepID stepID: String,
          withQuestion question: String,

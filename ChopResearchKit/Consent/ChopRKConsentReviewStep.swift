@@ -18,20 +18,35 @@ struct ChopRKConsentReviewStep {
         reviewConsentStep.text = "Review Consent!"
         reviewConsentStep.reasonForConsent = "Consent to join study"
 
-        rkStep = reviewConsentStep
+        rkConsentReviewStep = reviewConsentStep
     }
     
-    fileprivate var rkStep: ORKStep
+    fileprivate var rkConsentReviewStep: ORKConsentReviewStep
+    fileprivate var result = ChopResearchStudyConsent()
 }
+
 extension ChopRKConsentReviewStep: ChopRKTaskStep {
     // MARK: ChopRKTaskStep
     func populateRKStepArray(stepArray: inout [ORKStep]) {
-        stepArray += [rkStep]
+        stepArray += [rkConsentReviewStep]
     }
 }
 
 extension ChopRKConsentReviewStep: ChopResearchStudyModuleStep {
     // MARK: ChopResearchStudyModuleStep
-    var stepId: String { get { return rkStep.identifier } }
+    var stepId: String { get { return rkConsentReviewStep.identifier } }
+    
+}
+
+extension ChopRKConsentReviewStep: HasModuleStepDataToCapture {
+    //MARK: HasModuleStepDataToCapture
+    mutating func captureResult(fromORKTaskResult taskResult: ORKTaskResult) {
+        
+        if let stepResult = taskResult.stepResult(forStepIdentifier: stepId),
+           let signatureResult = stepResult.results?.first as? ORKConsentSignatureResult {
+            
+            result.load(resultToLoad: signatureResult)
+        }
+    }
     
 }

@@ -9,7 +9,7 @@
 import Foundation
 import ResearchKit
 
-struct ChopTextQuestion: ChopSurveyQuestion {
+struct ChopTextQuestion {
     
     var answer: String
     

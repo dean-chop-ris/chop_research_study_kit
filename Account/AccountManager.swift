@@ -18,6 +18,7 @@ enum AccountStatus {
 
 struct AccountManager {
 
+    
     public private(set) var rkLoginTask : ChopRKTask!
     
     mutating func implement(options: ChopResearchStudyModuleOptions) -> Bool {

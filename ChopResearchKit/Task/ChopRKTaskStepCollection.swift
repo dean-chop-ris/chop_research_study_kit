@@ -72,12 +72,12 @@ struct ChopRKTaskStepCollection: Sequence {
         
         for step in steps.values {
             
-            if step is ChopSurveyQuestion {
+            if step is HasModuleStepDataToCapture {
                 
-                var question = step as! ChopSurveyQuestion
+                var question = step as! HasModuleStepDataToCapture
                 
                 question.captureResult(fromORKTaskResult: taskResult)
-                newStepCollection[question.stepId] = question
+                newStepCollection[question.stepId] = step
             } else {
                 newStepCollection[step.stepId] = step
             }
