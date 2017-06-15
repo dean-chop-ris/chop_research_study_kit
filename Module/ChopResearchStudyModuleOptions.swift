@@ -15,6 +15,13 @@ enum LoginMode: String {
     case None = "None"
 }
 
+enum PasscodeMode: String {
+    case Creation = "PasscodeCreation"
+    case Enforcement = "PasscodeEnforcement"
+    case Edit = "EditPasscode"
+    case None = "None"
+}
+
 struct ChopResearchStudyModuleOptions {
     
     var loginMode: LoginMode {
@@ -29,8 +36,21 @@ struct ChopResearchStudyModuleOptions {
             addOption(optionType: "Login_Mode", optionValue: (newValue.rawValue))
         }
     }
-    
-    mutating func addOption(optionType: String, optionValue: String) {
+
+    var passcodeMode: PasscodeMode {
+        get {
+            if let val = optionsDictionary["Passcode_Mode"] {
+                return PasscodeMode(rawValue: val)!
+            }
+            return PasscodeMode.None
+        }
+        
+        set {
+            addOption(optionType: "Passcode_Mode", optionValue: (newValue.rawValue))
+        }
+    }
+
+    private mutating func addOption(optionType: String, optionValue: String) {
         optionsDictionary[optionType] = optionValue
     }
     

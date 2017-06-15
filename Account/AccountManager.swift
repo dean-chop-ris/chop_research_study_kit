@@ -66,7 +66,6 @@ struct AccountManager {
 
     fileprivate var impl: ChopResearchStudyAccountLoginImplementation?
     fileprivate var moduleSteps = ChopModuleStepCollection()
-    fileprivate var moduleVC: UIViewController? = nil
 }
 
 extension AccountManager: ChopLoginImplementationClient {
