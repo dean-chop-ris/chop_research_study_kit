@@ -28,10 +28,10 @@ class ChopResearchStudy: NSObject {
 
     
     func getFile1() -> String {
-        let moduleInfo = modules[ChopResearchStudyModuleTypeEnum.ShortWalkActiveTask]
-        let shortWalkTask = moduleInfo?.module as! PSA_ShortWalkActiveTask
+        //let moduleInfo = modules[ChopResearchStudyModuleTypeEnum.ShortWalkActiveTask]
+        //let shortWalkTask = moduleInfo?.module as! PSA_ShortWalkActiveTask
         
-        return shortWalkTask.file1
+        return "Unkown"
     }
 
     func createModuleViewController(type taskType: ChopResearchStudyModuleTypeEnum) -> UIViewController {
