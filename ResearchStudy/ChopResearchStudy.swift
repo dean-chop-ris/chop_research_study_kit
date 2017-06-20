@@ -14,6 +14,7 @@ public enum ChopResearchStudyModuleTypeEnum {
     case Consent
     case Survey
     case ShortWalkActiveTask
+    case TappingIntervalTask
 }
 
 // In order to implement ORKTaskViewControllerDelegate, 

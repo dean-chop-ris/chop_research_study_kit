@@ -24,7 +24,6 @@ struct ChopShortWalkActiveTask {
                                           numberOfStepsPerLeg: numberOfStepsPerLeg,
                                           restDuration: TimeInterval(restDuration),
                                           options: option)
-        
     }
     
     func createModuleViewController(delegate: ChopResearchStudy) -> UIViewController {
