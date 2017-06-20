@@ -13,6 +13,7 @@ public enum ChopResearchStudyModuleTypeEnum {
     case Login
     case Consent
     case Survey
+    case ShortWalkActiveTask
 }
 
 // In order to implement ORKTaskViewControllerDelegate, 
@@ -25,9 +26,14 @@ public enum ChopResearchStudyModuleTypeEnum {
 // implement ORKTaskViewControllerDelegate
 class ChopResearchStudy: NSObject {
 
-    var modules: [ChopResearchStudyModuleTypeEnum:ChopResearchStudyModule] = [:]
-    var dataStore: ChopDataStore = ChopDataStore()
     
+    func getFile1() -> String {
+        let moduleInfo = modules[ChopResearchStudyModuleTypeEnum.ShortWalkActiveTask]
+        let shortWalkTask = moduleInfo?.module as! PSA_ShortWalkActiveTask
+        
+        return shortWalkTask.file1
+    }
+
     func createModuleViewController(type taskType: ChopResearchStudyModuleTypeEnum) -> UIViewController {
         
         return createModuleViewController(type: taskType, options: nil)
@@ -35,17 +41,29 @@ class ChopResearchStudy: NSObject {
 
     func createModuleViewController(type taskType: ChopResearchStudyModuleTypeEnum, options: ChopResearchStudyModuleOptions?) -> UIViewController {
         
-        var module = modules[taskType]
+        var module = modules[taskType]?.module
         
         if options != nil {
             module?.setOptions(options: options!)
-            modules[taskType] = module
+            modules[taskType]?.module = module!
         }
         
         let viewController = module?.createModuleViewController(delegate: self)
         
+        modules[taskType]?.viewController = viewController
+        
         return viewController!
     }
+    
+    func add(moduleType: ChopResearchStudyModuleTypeEnum, moduleToAdd: ChopResearchStudyModule) {
+        
+        //modules[moduleType] = moduleToAdd
+        modules[moduleType] = ModuleInformation(module: moduleToAdd)
+    }
+    
+    //fileprivate var modules: [ChopResearchStudyModuleTypeEnum:ChopResearchStudyModule] = [:]
+    fileprivate var modules: [ChopResearchStudyModuleTypeEnum:ModuleInformation] = [:]
+    private var dataStore: ChopDataStore = ChopDataStore()
 }
 
 extension ChopResearchStudy : ORKTaskViewControllerDelegate {
@@ -53,10 +71,12 @@ extension ChopResearchStudy : ORKTaskViewControllerDelegate {
     
     func taskViewController(_ taskViewController: ORKTaskViewController, didFinishWith reason: ORKTaskViewControllerFinishReason, error: Error?) {
         
+        let chopTaskViewController = taskViewController as! ChopRKTaskViewController
+        var moduleInfo = modules[chopTaskViewController.taskType]!
+
         if reason == ORKTaskViewControllerFinishReason.completed {
 
-            let chopTaskViewController = taskViewController as! ChopRKTaskViewController
-            var module: ChopResearchStudyModule = modules[chopTaskViewController.taskType]!
+            var module: ChopResearchStudyModule = moduleInfo.module
             
             module.onFinish(withResult: taskViewController.result);
             
@@ -67,7 +87,17 @@ extension ChopResearchStudy : ORKTaskViewControllerDelegate {
                 broker.send(request: request)
             }
         }
+        else if reason != ORKTaskViewControllerFinishReason.discarded {
+            
+            let alert = ChopUIAlert(forViewController: taskViewController,
+                                    withTitle: "Error",
+                                    andMessage: "Task Ended: " + error.debugDescription)
+            
+            alert.show()
+            
+        }
         taskViewController.dismiss(animated: true, completion: nil)
+        moduleInfo.viewController = nil
     }
     
     func taskViewController(_ taskViewController: ORKTaskViewController, shouldPresent step: ORKStep) -> Bool {
@@ -76,8 +106,10 @@ extension ChopResearchStudy : ORKTaskViewControllerDelegate {
             return true
         }
         var shouldPresent: Bool = true
-        
-        for chopModule in modules.values {
+
+        for chopModuleInfo in modules.values {
+            let chopModule = chopModuleInfo.module
+            
             if chopModule.identifier == orkTask.identifier {
 
                 shouldPresent = chopModule.shouldPresentStep(
@@ -85,12 +117,16 @@ extension ChopResearchStudy : ORKTaskViewControllerDelegate {
                     givenResult: taskViewController.result)
                 
                 if shouldPresent == false {
+                    
+                    sendUserMessage(forClientWithId: chopModule.identifier, title: "Error", message: chopModule.errorMessage)
+                    /*
                     // The user provided invalid input
                     let alert = ChopUIAlert(forViewController: taskViewController,
                                             withTitle: "Error",
                                             andMessage: chopModule.errorMessage)
                     
                     alert.show()
+                    */
                 }
             }
         }
@@ -121,4 +157,34 @@ extension ChopResearchStudy : ChopWebDataStoreClient {
 }
 
 
+extension ChopResearchStudy: ChopResearchStudyModuleClient {
+    
+    func sendUserMessage(forClientWithId clientId: String, title: String, message: String) {
+        for chopModuleInfo in modules.values {
+            let chopModule = chopModuleInfo.module
+            
+            if chopModule.identifier == clientId {
+                
+            let alert = ChopUIAlert(forViewController: chopModuleInfo.viewController!,
+                                            withTitle: title,
+                                            andMessage: message)
+                    
+                    alert.show()
+            }
+        }
+    }
+}
 
+
+
+
+struct ModuleInformation {
+    
+    init(module: ChopResearchStudyModule) {
+        self.module = module
+        self.viewController = nil
+    }
+    
+    var module: ChopResearchStudyModule
+    var viewController: UIViewController?
+}

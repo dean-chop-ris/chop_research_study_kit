@@ -10,7 +10,7 @@ import Foundation
 import ResearchKit
 
 protocol ChopResearchStudyModule {
-    
+
     var identifier: String { get }
     var errorMessage: String { get }
 

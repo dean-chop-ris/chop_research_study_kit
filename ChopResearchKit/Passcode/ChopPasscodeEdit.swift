@@ -37,5 +37,6 @@ extension ChopPasscodeEdit: ChopPasscodeModuleImplementation {
     
     mutating func onFinish(withResult taskResult: ORKTaskResult) {
         
+        
     }
 }

@@ -96,6 +96,13 @@ public class ChopRKTask : ORKNavigableOrderedTask
         return true
     }
     
+/*
+    func makeShortWalkTask() {
+        let options = ORKPredefinedTaskOption()
+        
+        let task = ORKOrderedTask.shortWalk(withIdentifier: "ShortWalk", intendedUseDescription: "Test", numberOfStepsPerLeg: 5, restDuration: 10, options: options)
+    }
+ */
 //
 //    func signatureCollectionResult(forQuestionStep stepIdentifier: String, from result: ORKTaskResult) -> ChopRKSignatureCollectionResult {
 //        
