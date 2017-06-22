@@ -15,9 +15,9 @@ struct ChopShortWalkActiveTask {
         
         self.client = moduleClient
         
-        var option = ORKPredefinedTaskOption()
+        let option = ORKPredefinedTaskOption()
         
-        option.insert(ORKPredefinedTaskOption.excludeAudio)
+        //option.insert(ORKPredefinedTaskOption.excludeAudio)
         
         rkTask = ORKOrderedTask.shortWalk(withIdentifier: "ShortWalk",
                                           intendedUseDescription: "Intended_Use_Description",
@@ -44,6 +44,19 @@ struct ChopShortWalkActiveTask {
 
     mutating func onFinish(withResult taskResult: ORKTaskResult) {
         
+        /*
+        //
+        // Convert json items in file to items (Objective-C)
+        //
+        NSArray  *gaitItems = nil;
+        if (url != nil) {
+            NSData  *jsonData = [NSData dataWithContentsOfURL:url];
+            NSDictionary *json = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:NULL];
+            gaitItems = [json objectForKey:@"items"];
+        }
+        return  gaitItems;
+        */
+        
         for stepResult in taskResult.results! {
             if stepResult is ORKStepResult {
                 let rkStepResult = stepResult as! ORKStepResult
@@ -59,9 +72,44 @@ struct ChopShortWalkActiveTask {
                             ref.fileNumber = fileNumber
                             ref.filePath = (resultFile.fileURL?.absoluteString)!
                             
+                            let lastPathComponent = resultFile.fileURL?.lastPathComponent
+
+                            if (lastPathComponent?.hasPrefix("accel_walking.outbound"))! {
+                                print("Found urlGaitForward: " + ref.filePath)
+                            }
+                            if (lastPathComponent?.hasPrefix("accel_walking.rest"))! {
+                                print("Found urlPosture: " + ref.filePath)
+                            }
+                            
                             resultFiles += [ref]
                             
                             fileNumber += 1
+
+                            // Process file
+                            
+                            // Delete file
+                            // Why doesn't this work?
+                            /*
+                            let defaultFileManager = FileManager.default
+                            do {
+                                try defaultFileManager.removeItem(atPath: ref.filePath)
+                            } catch let error as NSError {
+                                print("Could not delete file: \(ref.filePath): \(error.debugDescription)")
+                            }
+                            */
+                            
+                            /*
+                            // Clear the directory
+                            do {
+                                let outputDir = (taskViewController.outputDirectory?.absoluteString)!
+                                let filePaths = try defaultFileManager.contentsOfDirectory(atPath: outputDir)
+                                for filePath in filePaths {
+                                    try defaultFileManager.removeItem(atPath: filePath)
+                                }
+                            } catch let error as NSError {
+                                print("Could not clear folder: \(error.debugDescription)")
+                            }
+                            */
                         }
                     }
                 }
@@ -69,6 +117,8 @@ struct ChopShortWalkActiveTask {
         }
     }
 
+    
+    
     fileprivate var rkTask: ORKOrderedTask
     fileprivate var client: ChopResearchStudyModuleClient
     fileprivate var resultFiles = [ChopActiveTaskResultFileReference]()
