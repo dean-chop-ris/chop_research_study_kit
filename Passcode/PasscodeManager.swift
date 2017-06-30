@@ -117,7 +117,7 @@ extension PasscodeManager: ORKPasscodeDelegate {
         let svc = rkTaskViewController?.currentStepViewController
         
         if vc != nil && svc != nil {
-            let id = svc?.step?.identifier
+            _ = svc?.step?.identifier
             rkTaskViewController?.currentStepViewController?.goForward()
             rkTaskViewController = nil
         }
