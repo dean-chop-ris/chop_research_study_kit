@@ -19,7 +19,7 @@ protocol ChopResearchStudyModule {
     func createModuleViewController(delegate: ChopResearchStudy) -> UIViewController
 
     // New Protocol? HasSteps? ResearchKitBased?
-    func shouldPresentStep(stepIdToPresent: String, givenResult result: ORKTaskResult) -> Bool
+    func shouldPresentStep(stepIdToPresent: String, givenResult result: ORKTaskResult) -> ShouldPresentResultEnum
     
     
     mutating func onFinish(withResult taskResult: ORKTaskResult)

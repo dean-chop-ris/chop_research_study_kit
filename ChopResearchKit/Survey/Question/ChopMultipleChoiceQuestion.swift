@@ -45,6 +45,7 @@ struct ChopMultipleChoiceQuestion {
     fileprivate var choices = [ORKTextChoice]() // All the possible choices for the user to choose from
     fileprivate var _answers = [Int]() // The choices that the user actually chose
     private var _isMultipleAnswer: Bool
+    fileprivate var base = ChopRKTaskStepBase()
 }
 
 extension ChopMultipleChoiceQuestion: HasModuleStepDataToCapture {
@@ -69,6 +70,16 @@ extension ChopMultipleChoiceQuestion: HasModuleStepDataToCapture {
 
 extension ChopMultipleChoiceQuestion: ChopRKTaskStep {
     // MARK: ChopRKTaskStep
+    
+    var passcodeProtected: Bool {
+        get {
+            return self.base.passcodeProtected
+        }
+        set {
+            self.base.passcodeProtected = newValue
+        }
+    }
+    
     func populateRKStepArray(stepArray: inout [ORKStep]) {
         stepArray += [rkStep]
     }

@@ -65,6 +65,7 @@ class ChopResearchStudy: NSObject {
     //fileprivate var modules: [ChopResearchStudyModuleTypeEnum:ChopResearchStudyModule] = [:]
     fileprivate var modules: [ChopResearchStudyModuleTypeEnum:ModuleInformation] = [:]
     private var dataStore: ChopDataStore = ChopDataStore()
+    fileprivate var passcodeManager = PasscodeManager()
 }
 
 extension ChopResearchStudy : ORKTaskViewControllerDelegate {
@@ -106,7 +107,7 @@ extension ChopResearchStudy : ORKTaskViewControllerDelegate {
         guard let orkTask = taskViewController.task else {
             return true
         }
-        var shouldPresent: Bool = true
+        var shouldPresent = ShouldPresentResultEnum.YES
 
         for chopModuleInfo in modules.values {
             let chopModule = chopModuleInfo.module
@@ -117,23 +118,23 @@ extension ChopResearchStudy : ORKTaskViewControllerDelegate {
                     stepIdToPresent: step.identifier,
                     givenResult: taskViewController.result)
                 
-                if shouldPresent == false {
+                if shouldPresent == ShouldPresentResultEnum.NO {
                     
                     sendUserMessage(forClientWithId: chopModule.identifier, title: "Error", message: chopModule.errorMessage)
-                    /*
-                    // The user provided invalid input
-                    let alert = ChopUIAlert(forViewController: taskViewController,
-                                            withTitle: "Error",
-                                            andMessage: chopModule.errorMessage)
-                    
-                    alert.show()
-                    */
+                 }
+                
+                if shouldPresent == ShouldPresentResultEnum.PASSCODE {
+                    // This is the wait step just before the passcoded step.
+                    // Let it present, but behind the passcode VC
+                    shouldPresent = ShouldPresentResultEnum.YES
+
+                    passcodeManager.verify(withContainingTaskVC: taskViewController)
                 }
             }
         }
         
         
-        return shouldPresent
+        return shouldPresent == ShouldPresentResultEnum.YES
     }
 }
 
@@ -159,7 +160,7 @@ extension ChopResearchStudy : ChopWebDataStoreClient {
 
 
 extension ChopResearchStudy: ChopResearchStudyModuleClient {
-    
+    // MARK: ChopResearchStudyModuleClient
     func sendUserMessage(forClientWithId clientId: String, title: String, message: String) {
         for chopModuleInfo in modules.values {
             let chopModule = chopModuleInfo.module
@@ -175,9 +176,6 @@ extension ChopResearchStudy: ChopResearchStudyModuleClient {
         }
     }
 }
-
-
-
 
 struct ModuleInformation {
     

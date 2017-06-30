@@ -26,10 +26,21 @@ struct ChopSurveyCompletionStep {
     func isValid(givenResult result: ORKTaskResult) -> Bool { return true }
 
     fileprivate var rkStep: ORKStep
+    fileprivate var base = ChopRKTaskStepBase()
 }
 
 extension ChopSurveyCompletionStep: ChopRKTaskStep {
     // MARK: ChopRKTaskStep
+    
+    var passcodeProtected: Bool {
+        get {
+            return self.base.passcodeProtected
+        }
+        set {
+            self.base.passcodeProtected = newValue
+        }
+    }
+
     func populateRKStepArray(stepArray: inout [ORKStep]) {
         stepArray += [rkStep]
     }

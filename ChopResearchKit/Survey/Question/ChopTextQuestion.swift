@@ -30,10 +30,21 @@ struct ChopTextQuestion {
     fileprivate var rkStep: ORKStep
     fileprivate var validation: ValidationInfo = ValidationInfo()
     fileprivate var web_Id: String = ""
+    fileprivate var base = ChopRKTaskStepBase()
 }
+
 
 extension ChopTextQuestion: ChopRKTaskStep {
     // MARK: ChopRKTaskStep
+    var passcodeProtected: Bool {
+        get {
+            return self.base.passcodeProtected
+        }
+        set {
+            self.base.passcodeProtected = newValue
+        }
+    }
+
     func populateRKStepArray(stepArray: inout [ORKStep]) {
         stepArray += [rkStep]
     }

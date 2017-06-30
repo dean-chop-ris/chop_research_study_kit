@@ -11,6 +11,8 @@ import ResearchKit
 
 protocol ChopRKTaskStep: ChopResearchStudyModuleStep {
  
+    var passcodeProtected: Bool { get set }
+    
     func populateRKStepArray(stepArray: inout [ORKStep])
 }
 

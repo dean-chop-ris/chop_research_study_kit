@@ -16,11 +16,21 @@ struct ChopResearchStudyVerificationStep {
     }
     
     fileprivate var rkVerificationStep: ORKVerificationStep
-    //fileprivate var registrationInfo = Dictionary<String, String>()
+    fileprivate var base = ChopRKTaskStepBase()
 }
 
 extension ChopResearchStudyVerificationStep: ChopRKTaskStep {
     // MARK: ChopRKTaskStep
+    
+    
+    var passcodeProtected: Bool {
+        get {
+            return self.base.passcodeProtected
+        }
+        set {
+            self.base.passcodeProtected = newValue
+        }
+    }
     
     func populateRKStepArray(stepArray: inout [ORKStep]) {
         stepArray += [rkVerificationStep]

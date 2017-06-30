@@ -55,14 +55,73 @@ struct ChopModuleStepCollection {
         return nil
     }
 
+    func previousStep(fromStepId: String) -> ChopResearchStudyModuleStep? {
+        
+        var previousKey = ""
+        
+        for key in stepKeysInOrder {
+            if key == fromStepId {
+                return previousKey.isEmpty ? nil : steps[previousKey]
+            }
+            else {
+                previousKey = key
+            }
+        }
+        return nil
+    }
+
     mutating func add(element: ChopResearchStudyModuleStep) -> Bool {
 
-        steps[element.stepId] = element
-        stepKeysInOrder += [element.stepId]
+        if element is ChopRKTaskStep {
+            // TODO: Add this to ChopRKTaskStep; It doesn't belong here
+            let rkElement = element as! ChopRKTaskStep
+            
+            if rkElement.passcodeProtected {
+                // Insert a Wait step just before the step protected by passcode
+                // so that RK can move past the previous step, but not proceed
+                // to the passcoded step
+                let waitStepId = element.stepId + "__WAIT"
+                var waitStep = ChopWaitStep(withStepID: waitStepId, withTitle: "Please wait", withText: "Verifying Passcode")
+                waitStep.reason = WaitReasonEnum.PasscodeVerification
+                addToArrays(element: waitStep)
+            }
+        }
+        
+        addToArrays(element: element)
 
         return true
     }
 
+    private mutating func addToArrays(element: ChopResearchStudyModuleStep) {
+        
+        steps[element.stepId] = element
+        stepKeysInOrder += [element.stepId]
+    }
+    
+    mutating func insert(element: ChopResearchStudyModuleStep, afterStepId: String) -> Bool {
+        
+        steps[element.stepId] = element
+
+        var index = 1
+        
+        for key in stepKeysInOrder {
+            if key == afterStepId {
+                break
+            }
+            else {
+                index += 1
+            }
+        }
+        
+        if index > stepKeysInOrder.count - 1 {
+            return false
+        }
+        
+        stepKeysInOrder.insert(element.stepId, at: index)
+        return true
+    }
+    
+    
     mutating func remove(element: ChopResearchStudyModuleStep) {
         
         steps.removeValue(forKey: element.stepId)

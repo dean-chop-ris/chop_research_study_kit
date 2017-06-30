@@ -39,11 +39,21 @@ struct ChopRankingQuestion {
     fileprivate var orkFormStep: ORKFormStep
     fileprivate var itemsToRank = [ChopRankingItem]()
     fileprivate var validation: ValidationInfo = ValidationInfo()
+    fileprivate var base = ChopRKTaskStepBase()
 }
 
 
 extension ChopRankingQuestion: ChopRKTaskStep {
     // MARK: : ChopRKTaskStep
+    var passcodeProtected: Bool {
+        get {
+            return self.base.passcodeProtected
+        }
+        set {
+            self.base.passcodeProtected = newValue
+        }
+    }
+
     func populateRKStepArray(stepArray: inout [ORKStep]) {
         stepArray += [orkFormStep]
     }

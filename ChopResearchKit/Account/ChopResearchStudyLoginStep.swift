@@ -19,11 +19,21 @@ struct ChopResearchStudyLoginStep {
     
     fileprivate var rkLoginStep: ORKLoginStep
     fileprivate var login = UserLogin()
+    fileprivate var base = ChopRKTaskStepBase()
 }
 
 extension ChopResearchStudyLoginStep: ChopRKTaskStep {
     // MARK: ChopRKTaskStep
     
+    var passcodeProtected: Bool {
+        get {
+            return self.base.passcodeProtected
+        }
+        set {
+            self.base.passcodeProtected = newValue
+        }
+    }
+
     func populateRKStepArray(stepArray: inout [ORKStep]) {
         stepArray += [rkLoginStep]
     }

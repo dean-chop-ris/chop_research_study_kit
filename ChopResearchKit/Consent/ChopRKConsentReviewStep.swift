@@ -23,10 +23,21 @@ struct ChopRKConsentReviewStep {
     
     fileprivate var rkConsentReviewStep: ORKConsentReviewStep
     fileprivate var result = ChopResearchStudyConsent()
+    fileprivate var base = ChopRKTaskStepBase()
 }
 
 extension ChopRKConsentReviewStep: ChopRKTaskStep {
     // MARK: ChopRKTaskStep
+    
+    var passcodeProtected: Bool {
+        get {
+            return self.base.passcodeProtected
+        }
+        set {
+            self.base.passcodeProtected = newValue
+        }
+    }
+
     func populateRKStepArray(stepArray: inout [ORKStep]) {
         stepArray += [rkConsentReviewStep]
     }

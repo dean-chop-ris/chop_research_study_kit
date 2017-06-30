@@ -33,6 +33,16 @@ extension ChopResearchStudyRegistration: ChopResearchStudyAccountLoginImplementa
         if moduleStepContainer.add(element: registrationStep) == false {
             return
         }
+        
+        if options.includePasscode {
+            
+            let passcodeStep = ChopPasscodeStep()
+            
+            if moduleStepContainer.add(element: passcodeStep) == false {
+                return
+            }
+        }
+        
     }
     
     func createModuleViewController(delegate: ChopResearchStudy, rkTaskToRun: ORKTask) -> UIViewController {

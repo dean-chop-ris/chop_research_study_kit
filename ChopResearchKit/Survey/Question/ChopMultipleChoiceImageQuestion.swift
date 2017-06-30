@@ -31,10 +31,21 @@ struct ChopMultipleChoiceImageQuestion {
     fileprivate var validation: ValidationInfo = ValidationInfo()
     fileprivate var _webId: String
     fileprivate var answer: Int = -1
+    fileprivate var base = ChopRKTaskStepBase()
 }
 
 extension ChopMultipleChoiceImageQuestion: ChopRKTaskStep {
     // MARK: ChopRKTaskStep
+    
+    var passcodeProtected: Bool {
+        get {
+            return self.base.passcodeProtected
+        }
+        set {
+            self.base.passcodeProtected = newValue
+        }
+    }
+
     func populateRKStepArray(stepArray: inout [ORKStep]) {
         stepArray += [rkStep]
     }

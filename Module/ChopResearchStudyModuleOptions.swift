@@ -24,6 +24,14 @@ enum PasscodeMode: String {
 
 struct ChopResearchStudyModuleOptions {
     
+    init() {
+        
+    }
+    
+    init(initOptions: ChopResearchStudyModuleOptions) {
+        self.optionsDictionary = initOptions.optionsDictionary
+    }
+    
     var loginMode: LoginMode {
         get {
             if let val = optionsDictionary["Login_Mode"] {
@@ -34,6 +42,19 @@ struct ChopResearchStudyModuleOptions {
         
         set {
             addOption(optionType: "Login_Mode", optionValue: (newValue.rawValue))
+        }
+    }
+
+    var includePasscode: Bool {
+        get {
+            if let val = optionsDictionary["Include_Passcode"] {
+                return Bool(val)!
+            }
+            return false
+        }
+        
+        set {
+            addOption(optionType: "Include_Passcode", optionValue: (String(newValue)))
         }
     }
 

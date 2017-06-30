@@ -12,6 +12,12 @@
 import Foundation
 import ResearchKit
 
+enum ShouldPresentResultEnum {
+    case NO
+    case YES
+    case PASSCODE
+}
+
 public class ChopRKTask : ORKNavigableOrderedTask
 {
     var errorMessage: String? = nil
@@ -61,12 +67,14 @@ public class ChopRKTask : ORKNavigableOrderedTask
     
     func navigateSetSurveyStepDisplayRule(forStepIdToDisplay stepIdToDisplay: String, onlyIfStepIdIsValid stepIdToValidate: String) {
         
-        let rule = SurveyStepDisplayRule(stepToDisplay: stepIdToDisplay, stepToValidate: stepIdToValidate)
+        let rule = SurveyStepDisplayRule(stepToDisplay: stepIdToDisplay,
+                                         validationType: ValidationTypeEnum.ValidStep,
+                                         stepToValidate: stepIdToValidate)
         
         surveyStepDisplayRules += [rule]
     }
     
-    func shouldPresent(stepIdToPresent: String, givenResult result: ORKTaskResult) -> Bool {
+    func shouldPresent(stepIdToPresent: String, givenResult result: ORKTaskResult) -> ShouldPresentResultEnum {
 
         for rule in surveyStepDisplayRules {
 
@@ -74,35 +82,80 @@ public class ChopRKTask : ORKNavigableOrderedTask
                 continue
             }
 
-            let stepToValidate = moduleSteps.findStep(withId: rule.stepToValidate)
+            if rule.validationType == ValidationTypeEnum.ValidStep {
+                let stepToValidate = moduleSteps.findStep(withId: rule.stepToValidate)
+                
+                if (stepToValidate == nil) || (stepToValidate is AbleToBeValidated) == false {
+                    continue
+                }
             
-            if (stepToValidate == nil) || (stepToValidate is AbleToBeValidated) == false {
-                continue
+                let validatableStep = stepToValidate as! AbleToBeValidated
+                
+                if validatableStep.bypassValidation {
+                    continue
+                }
+     
+                var errMsg: String = ""
+                let isValid = validatableStep.isValid(givenResult: result, errorMessageToReturn: &errMsg)
+                
+                errorMessage = errMsg
+                return isValid ? ShouldPresentResultEnum.YES : ShouldPresentResultEnum.NO
             }
+            
+            //if rule.validationType == ValidationTypeEnum.Passcode {
+            
+                
+            //    return ShouldPresentResultEnum.PASSCODE
+            //}
+        }
+   
+        //
+        // Passcode Verification
+        //
         
-            let validatableStep = stepToValidate as! AbleToBeValidated
+        let stepToDisplay = moduleSteps.findStep(withId: stepIdToPresent)
+        
+        if stepToDisplay is ChopWaitStep {
+            let waitStep = stepToDisplay as! ChopWaitStep
             
-            if validatableStep.bypassValidation {
-                continue
+            if waitStep.reason == WaitReasonEnum.PasscodeVerification {
+                
+                return ShouldPresentResultEnum.PASSCODE
             }
- 
-            var errMsg: String = ""
-            let isValid = validatableStep.isValid(givenResult: result, errorMessageToReturn: &errMsg)
-            
-            errorMessage = errMsg
-            return isValid
         }
         
+        return ShouldPresentResultEnum.YES
+    }
+
+    func addPasscodeSecurity(forStepId passcodeProtectedStepId: String) -> Bool {
+        /*
+        guard let previousStep = moduleSteps.previousStep(fromStepId: passcodeProtectedStepId) else {
+            
+            return false
+        }
+        
+        let rule = SurveyStepDisplayRule(
+            stepToDisplay: passcodeProtectedStepId,
+            validationType: ValidationTypeEnum.Passcode,
+            stepToValidate: previousStep.stepId)
+
+        surveyStepDisplayRules += [rule]
+        
+        // Insert a Wait step just before the step protected by passcode
+        // so that RK can move past the previous step, but not proceed
+        // to the passcoded step
+        let waitStepId = previousStep.stepId + "__WAIT"
+        let waitStep = ChopWaitStep(withStepID: waitStepId, withTitle: "Please wait", withText: "Verifying Passcode")
+        
+        let result = moduleSteps.insert(element: waitStep,
+                                        afterStepId: previousStep.stepId)
+
+        
+        return result
+ */
         return true
     }
-    
-/*
-    func makeShortWalkTask() {
-        let options = ORKPredefinedTaskOption()
-        
-        let task = ORKOrderedTask.shortWalk(withIdentifier: "ShortWalk", intendedUseDescription: "Test", numberOfStepsPerLeg: 5, restDuration: 10, options: options)
-    }
- */
+
 //
 //    func signatureCollectionResult(forQuestionStep stepIdentifier: String, from result: ORKTaskResult) -> ChopRKSignatureCollectionResult {
 //        
@@ -126,14 +179,21 @@ public class ChopRKTask : ORKNavigableOrderedTask
     private var surveyStepDisplayRules = [SurveyStepDisplayRule]()
 }
 
-struct ChopRKSignatureCollectionResult {
-    var firstName: String?
-    var lastName: String?
-    var signature: UIImage?
+//struct ChopRKSignatureCollectionResult {
+//    var firstName: String?
+//    var lastName: String?
+//    var signature: UIImage?
+//}
+
+enum ValidationTypeEnum {
+    case Passcode
+    case ValidStep
 }
+
 
 struct SurveyStepDisplayRule {
     var stepToDisplay: String
+    var validationType: ValidationTypeEnum
     var stepToValidate: String
 }
 

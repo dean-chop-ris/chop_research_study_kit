@@ -27,6 +27,8 @@ extension ChopPasscodeCreation: ChopPasscodeModuleImplementation {
     
     func loadSteps(into moduleStepContainer: inout ChopModuleStepCollection) {
         
+        //let passcodeConsentStep = ORKPasscodeStep(identifier: "Passcode_Create")
+
     }
     
     func createModuleViewController(delegate: ChopResearchStudy, rkTaskToRun: ORKTask) -> UIViewController {
