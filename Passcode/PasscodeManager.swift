@@ -96,11 +96,75 @@ class PasscodeManager: NSObject {
         }
     }
     
+    func resetPasscode() {
+        resetPasscode(onFirstRun: false)
+    }
+
+    func resetPasscode(onFirstRun: Bool) {
+        
+        var executeReset = true
+        
+        if onFirstRun {
+            
+            let standardDefaults = UserDefaults.standard
+            if standardDefaults.object(forKey: "ORKSampleFirstRun") != nil {
+                executeReset = false
+            }
+        }
+        
+        if executeReset {
+            ORKPasscodeViewController.removePasscodeFromKeychain()
+        }
+    }
+
+    //
+    // In order to passcode protect app upon entering background:
+    //         1. Make the root View Controller a ChopResearchStudyViewController
+    //         2. Add a property to AppDelegate to cast window?.rootViewController
+    //            as a ChopResearchStudyViewController
+    //         3. Add to willFinish: passcodeManager.resetPasscode(onFirstRun: true)
+    //         4. Implement PasscodeManager.passcodeProtectApp() (See method for intructions)
+    //         5. Implement PasscodeManager.hideForPasscodeProtection() (See method for intructions)
+    //
+    
+    
+    func passcodeProtectApp(containerViewController: ChopResearchStudyViewController, applicationWindow: UIWindow) {
+        
+        // This method locks the app and shows passcode verification 
+        // if there is a stored passcode and a passcode
+        // controller isn't already being shown.
+        //
+        // To implement, call this method from:
+        //      1. AppDelegate.application(_,didFinishLaunchingWithOptions)
+        //      2. AppDelegate.applicationWillEnterForeground(_ application: UIApplication)
+
+        guard ORKPasscodeViewController.isPasscodeStoredInKeychain() && !(containerViewController.presentedViewController is ORKPasscodeViewController) else { return }
+        
+        applicationWindow.makeKeyAndVisible()
+        
+        let passcodeViewController = ORKPasscodeViewController.passcodeAuthenticationViewController(withText: "Welcome back to ResearchKit Sample App", delegate: self)
+        self.containerViewController = containerViewController
+        containerViewController.present(passcodeViewController, animated: false, completion: nil)
+    }
+    
+    func hideForPasscodeProtection(containerViewController: ChopResearchStudyViewController) {
+        
+        // This method Hide content so it doesn't appear in the app switcher.
+        //
+        // To implement, call this method from:
+        //      1. AppDelegate.applicationDidEnterBackground(_ application: UIApplication)
+        if ORKPasscodeViewController.isPasscodeStoredInKeychain() {
+            // Hide content so it doesn't appear in the app switcher.
+            containerViewController.contentHidden = true
+        }
+        
+    }
     
     fileprivate var impl: ChopPasscodeModuleImplementation?
     fileprivate var moduleSteps = ChopModuleStepCollection()
     private var passcodeViewController: ORKPasscodeViewController?
     weak fileprivate var rkTaskViewController: ORKTaskViewController?
+    weak fileprivate var containerViewController: ChopResearchStudyViewController?
 }
 
 extension PasscodeManager: ORKPasscodeDelegate {
@@ -110,29 +174,39 @@ extension PasscodeManager: ORKPasscodeDelegate {
 
         viewController.dismiss(animated: true, completion: nil)
 
-        // A wait step is current, holding the progress of the task
-        // TODO: Not sure why this isn't working:
-        // .goForward() does not work...
-        let vc = rkTaskViewController
-        let svc = rkTaskViewController?.currentStepViewController
+        if (rkTaskViewController != nil) {
+            // A wait step is current, holding the progress of the task
+            // TODO: Not sure why this isn't working:
+            // .goForward() does not work...
+            let vc = rkTaskViewController
+            let svc = rkTaskViewController?.currentStepViewController
+            
+            if vc != nil && svc != nil {
+                _ = svc?.step?.identifier
+                rkTaskViewController?.currentStepViewController?.goForward()
+                rkTaskViewController = nil
+            }
+        }
         
-        if vc != nil && svc != nil {
-            _ = svc?.step?.identifier
-            rkTaskViewController?.currentStepViewController?.goForward()
-            rkTaskViewController = nil
+        if containerViewController != nil {
+
+            containerViewController?.contentHidden = false
+            containerViewController = nil
         }
     }
     
     public func passcodeViewControllerDidFailAuthentication(_ viewController: UIViewController) {
         
         rkTaskViewController = nil
+        containerViewController = nil
         viewController.dismiss(animated: true, completion: nil)
-}
+    }
     
     
     public func passcodeViewControllerDidCancel(_ viewController: UIViewController) {
         
         rkTaskViewController = nil
+        containerViewController = nil
         viewController.dismiss(animated: true, completion: nil)
     }
     
