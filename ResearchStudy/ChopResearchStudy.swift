@@ -105,8 +105,10 @@ extension ChopResearchStudy : ORKTaskViewControllerDelegate {
 
                 //broker.send(request: request)
                 broker.send(request: request, onCompletion: { (response, error) in
+                    if self.onModuleCompleteCallback != nil {
                         self.onModuleCompleteCallback!(response)
                         response.process()
+                    }
                     }
                 )
 
