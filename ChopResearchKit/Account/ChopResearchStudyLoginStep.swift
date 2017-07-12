@@ -11,6 +11,10 @@ import ResearchKit
 
 struct ChopResearchStudyLoginStep {
     
+    // Parameter ID's
+    static let PID_EMAIL = "email"
+    static let PID_PASSWORD = "password"
+
     init() {
         rkLoginStep = ORKLoginStep(identifier: "LoginStep",
                                    title: "Login", text: "Please log in",
@@ -59,6 +63,20 @@ extension ChopResearchStudyLoginStep: HasModuleStepDataToCapture {
     }
 }
 
+extension ChopResearchStudyLoginStep: GeneratesWebRequestData {
+    // MARK: GeneratesWebRequestData
+    public var webId: String {
+        get { return "" }
+        set {  }
+    }
+    
+    func populateWebRequestPostDictionary(dictionary: inout Dictionary<String, String>) {
+        
+        dictionary[ChopResearchStudyLoginStep.PID_EMAIL] = login.email
+        dictionary[ChopResearchStudyLoginStep.PID_PASSWORD] = login.password
+    }
+    
+}
 
 
 class ChopLoginStepViewController: ORKLoginStepViewController {

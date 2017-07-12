@@ -48,6 +48,24 @@ struct ChopWebRequestResponseUserMessage {
                     msg = "An account using that email is already in the database."
                 }
                 break
+            case ChopResearchStudyLogin.REQUEST_TYPE:
+                if result == ChopWebRequestResponse.PV_SUCCESS {
+                    title = "Login successful."
+                    msg = "Proceeding to main menu."
+                }
+                if result == ChopWebRequestResponse.PV_ACCT_NOT_FOUND {
+                    title = "Login failed."
+                    msg = "Account not found."
+                }
+                if result == ChopWebRequestResponse.PV_ACCT_NOT_CONFIRMED {
+                    title = "Login failed."
+                    msg = "Account not confirmed."
+                }
+                if result == ChopWebRequestResponse.PV_PASSWORD_INCORRECT {
+                    title = "Login failed."
+                    msg = "Password Incorrect."
+                }
+                break
             default:
                 title = "Error"
                 msg = "Unknown Request: " + requestType

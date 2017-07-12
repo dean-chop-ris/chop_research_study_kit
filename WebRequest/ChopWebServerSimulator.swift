@@ -23,6 +23,9 @@ struct ChopWebServerSimulator {
                     case ChopResearchStudyRegistration.REQUEST_TYPE:
                     responseDictionary = generateRegistrationResponse()
                     break
+                case ChopResearchStudyLogin.REQUEST_TYPE:
+                    responseDictionary = generateLoginResponse()
+                    break
                 default:
                     break
                 }
@@ -46,6 +49,22 @@ struct ChopWebServerSimulator {
         
         
         responseDictionary[AccountManager.PID_REQUEST_TYPE] = ChopResearchStudyRegistration.REQUEST_TYPE
+        responseDictionary[ChopWebRequestResponse.PID_REQUEST_RESULT] = requestResult
+        
+        return responseDictionary
+    }
+
+    func generateLoginResponse() -> Dictionary<String, String> {
+        
+        var responseDictionary = Dictionary<String, String>()
+        
+        let requestResult = ChopWebRequestResponse.PV_SUCCESS
+        //let requestResult = ChopWebRequestResponse.PV_ACCT_NOT_FOUND
+        //let requestResult = ChopWebRequestResponse.PV_ACCT_NOT_CONFIRMED
+        //let requestResult = ChopWebRequestResponse.PV_PASSWORD_INCORRECT
+        
+        
+        responseDictionary[AccountManager.PID_REQUEST_TYPE] = ChopResearchStudyLogin.REQUEST_TYPE
         responseDictionary[ChopWebRequestResponse.PID_REQUEST_RESULT] = requestResult
         
         return responseDictionary

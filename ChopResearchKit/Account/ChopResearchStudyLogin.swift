@@ -11,6 +11,8 @@ import ResearchKit
 
 struct ChopResearchStudyLogin {
  
+    static let REQUEST_TYPE = "login_user"
+    
     init(withOptions optionsInit: ChopResearchStudyModuleOptions) {
         loginOptions = optionsInit
     }
@@ -22,7 +24,7 @@ struct ChopResearchStudyLogin {
 extension ChopResearchStudyLogin: ChopResearchStudyAccountLoginImplementation {
     // MARK: ChopResearchStudyAccountLoginImplementation
     
-    var requestType : String { get { return "login_user" } }
+    var requestType : String { get { return ChopResearchStudyLogin.REQUEST_TYPE } }
 
     var options : ChopResearchStudyModuleOptions! { get { return self.loginOptions } }
      
