@@ -21,7 +21,9 @@ struct ChopResearchStudyVerification {
 
 extension ChopResearchStudyVerification: ChopResearchStudyAccountLoginImplementation {
     // MARK: ChopResearchStudyAccountLoginImplementation
-  
+
+    var requestType : String { get { return "verify_user" } }
+
     var options : ChopResearchStudyModuleOptions! { get { return self.verificationOptions } }
 
     func loadSteps(into moduleStepContainer: inout ChopModuleStepCollection) {
@@ -48,6 +50,11 @@ extension ChopResearchStudyVerification: ChopResearchStudyAccountLoginImplementa
     mutating func onFinish(withResult taskResult: ORKTaskResult) {
         
     }
+    
+    func createPayloadParamsDictionary(fromCompletedModuleSteps moduleSteps: ChopModuleStepCollection) -> Dictionary<String, String> {
+     
+        return Dictionary<String, String>()
+    }
 }
 
 class ChopVerificationStepViewController: ORKVerificationStepViewController {
@@ -61,3 +68,29 @@ class ChopVerificationStepViewController: ORKVerificationStepViewController {
         alert.show()
     }
 }
+
+extension ChopResearchStudyVerification: ChopWebRequestSource {
+    // MARK: ChopWebRequestSource
+    var destinationUrl: String
+    {
+        get
+        {
+            return "https://redcap.chop.edu/api/"
+        }
+    }
+
+    var headerParamsDictionary: Dictionary<String, String> {
+        get
+        {
+            return Dictionary<String, String>()
+        }
+    }
+    
+    var payloadParamsDictionary: Dictionary<String, String> {
+        get
+        {
+            return Dictionary<String, String>()
+        }
+    }
+}
+

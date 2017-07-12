@@ -13,6 +13,7 @@ protocol ChopResearchStudyModule {
 
     var identifier: String { get }
     var errorMessage: String { get }
+    var moduleCompleteCallback: ModuleCompleteCallback? { get set }
 
     mutating func setOptions(options: ChopResearchStudyModuleOptions)
     

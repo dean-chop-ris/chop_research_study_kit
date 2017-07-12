@@ -56,3 +56,5 @@ extension ChopPasscodeStep: HasModuleStepDataToCapture {
         // Upon completion of passcode creation, the passcode is saved in the device's keychain, so no result capture is needed.
     }
 }
+
+

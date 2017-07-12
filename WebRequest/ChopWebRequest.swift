@@ -10,26 +10,45 @@ import Foundation
 
 
 protocol ChopWebRequestSource {
+
+    var destinationUrl: String { get }
+
     var headerParamsDictionary: Dictionary<String, String> { get } // A dictionary of JSON keys/values
     var payloadParamsDictionary: Dictionary<String, String> { get } // A dictionary of JSON keys/values
     
 }
 
-struct ChopWebRequest : WebRequestSendable {
+struct ChopWebRequest {
     
+    init(withSource submissionSource: ChopWebRequestSource) {
+        self.source = submissionSource
+    }
+    
+    fileprivate var source: ChopWebRequestSource
+}
+
+extension ChopWebRequest: WebRequestSendable {
+    // MARK: WebRequestSendable
+    var destinationUrl: String
+    {
+        get
+        {
+            //return "https://redcap.chop.edu/api/"
+            return source.destinationUrl
+        }
+    }
+
     func populateWebRequestParamsDictionary(dictionary: inout Dictionary<String, String>) {
         
         for kvp in source.headerParamsDictionary {
             
             dictionary[kvp.key] = kvp.value
         }
-
+        
         
         dictionary["data"] = payload
     }
-
     
-    // Protocol: WebRequestSendable
     var payload: String
     {
         get
@@ -55,20 +74,8 @@ struct ChopWebRequest : WebRequestSendable {
             return jsonDataAsStr
         }
     }
-    
-    var destinationUrl: String
-    {
-        get
-        {
-            return "https://redcap.chop.edu/api/"
-        }
-    }
-    
-    // End: WebRequestSendable
-    
-    init(withSource submissionSource: ChopWebRequestSource) {
-        self.source = submissionSource
-    }
-    
-    private var source: ChopWebRequestSource
 }
+
+
+
+

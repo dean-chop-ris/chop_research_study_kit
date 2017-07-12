@@ -9,6 +9,8 @@
 import Foundation
 import ResearchKit
 
+typealias ModuleCompleteCallback = (ChopWebRequestResponse) -> Void
+
 public enum ChopResearchStudyModuleTypeEnum {
     case Login
     case Consent
@@ -35,6 +37,26 @@ class ChopResearchStudy: NSObject {
         return "Unkown"
     }
 
+    func registerContainingViewController(onModuleComplete: @escaping ModuleCompleteCallback) {
+        
+        onModuleCompleteCallback = onModuleComplete
+
+        for var chopModuleInfo in modules.values {
+            chopModuleInfo.module.moduleCompleteCallback = onModuleCompleteCallback
+        }
+   }
+
+    /*
+    func add(moduleType: ChopResearchStudyModuleTypeEnum, dataStructureType: System.Type) {
+    }
+    */
+    
+    func add(moduleType: ChopResearchStudyModuleTypeEnum, moduleToAdd: ChopResearchStudyModule) {
+
+        //moduleToAdd.moduleCompleteCallback = self.onModuleCompleteCallback
+        modules[moduleType] = ModuleInformation(module: moduleToAdd)
+    }
+    
     func createModuleViewController(type taskType: ChopResearchStudyModuleTypeEnum) -> UIViewController {
         
         return createModuleViewController(type: taskType, options: nil)
@@ -51,18 +73,13 @@ class ChopResearchStudy: NSObject {
         
         let viewController = module?.createModuleViewController(delegate: self)
         
-        modules[taskType]?.viewController = viewController
+        //module?.viewController = viewController
         
         return viewController!
     }
     
-    func add(moduleType: ChopResearchStudyModuleTypeEnum, moduleToAdd: ChopResearchStudyModule) {
-        
-        //modules[moduleType] = moduleToAdd
-        modules[moduleType] = ModuleInformation(module: moduleToAdd)
-    }
+    var onModuleCompleteCallback: ModuleCompleteCallback? = nil
     
-    //fileprivate var modules: [ChopResearchStudyModuleTypeEnum:ChopResearchStudyModule] = [:]
     fileprivate var modules: [ChopResearchStudyModuleTypeEnum:ModuleInformation] = [:]
     private var dataStore: ChopDataStore = ChopDataStore()
     fileprivate var passcodeManager = PasscodeManager()
@@ -86,7 +103,13 @@ extension ChopResearchStudy : ORKTaskViewControllerDelegate {
                 let request = ChopWebRequest(withSource: module as! ChopWebRequestSource)                
                 let broker = ChopWebRequestBroker(dataStoreClient: self)
 
-                broker.send(request: request)
+                //broker.send(request: request)
+                broker.send(request: request, onCompletion: { (response, error) in
+                        self.onModuleCompleteCallback!(response)
+                        response.process()
+                    }
+                )
+
             }
         }
         else if reason != ORKTaskViewControllerFinishReason.discarded {

@@ -13,6 +13,8 @@
 
 import Foundation
 
+typealias ServiceResponse = (ChopWebRequestResponse, NSError?) -> Void
+
 protocol WebRequestSendable {
     
     func populateWebRequestParamsDictionary(dictionary: inout Dictionary<String, String>)
@@ -21,9 +23,13 @@ protocol WebRequestSendable {
 }
 
 struct ChopWebRequestBroker {
-    var session: URLSession
-    private var client: ChopWebDataStoreClient
-    
+
+    init() {
+        
+        self.client = nil
+        session = URLSession(configuration: URLSessionConfiguration.default)
+    }
+
     init(dataStoreClient client: ChopWebDataStoreClient) {
         
         self.client = client
@@ -31,6 +37,10 @@ struct ChopWebRequestBroker {
     }
 
     func send(request: WebRequestSendable) {
+        send(request: request, onCompletion: { _, _ in })
+    }
+
+    func send(request: WebRequestSendable, onCompletion: @escaping ServiceResponse) {
         
         guard let url = URL(string: request.destinationUrl) else {
             print("Error: cannot create URL: " + request.destinationUrl)
@@ -63,15 +73,23 @@ struct ChopWebRequestBroker {
         
         // send request
         let dataTask = session.dataTask(with: urlRequest, completionHandler: { (data, response, error) in
+            
             if error != nil {
                 print(error!)
             }
             if response != nil {
                 if let httpResponse = response as? HTTPURLResponse {
                     print("Status code: (\(httpResponse.statusCode))")
-                    if httpResponse.statusCode != 200 {
+                    if httpResponse.statusCode == 200 {
+                    } else {
                         print(response!)
                     }
+                    
+                    //let resp = ChopWebRequestResponse(httpResponse: httpResponse)
+                    let resp = ChopWebRequestResponse(usingSimulator:ChopWebServerSimulator(withParamsDictionary: paramsDictionary))
+  
+                    onCompletion(resp, nil)
+                    
                 } else {
                     print(response!)
                 }
@@ -79,7 +97,7 @@ struct ChopWebRequestBroker {
         })
         dataTask.resume()
     }
-    
+    /*
     func parseJSON(data responseData: Data) {
         do {
             guard let jsonDictionary = try JSONSerialization.jsonObject(with: responseData, options: []) as? [String: AnyObject] else {
@@ -103,4 +121,7 @@ struct ChopWebRequestBroker {
             return
         }
     }
+    */
+    private var client: ChopWebDataStoreClient?
+    private var session: URLSession
 }

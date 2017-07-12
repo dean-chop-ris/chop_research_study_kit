@@ -12,10 +12,14 @@ import ResearchKit
 protocol ChopResearchStudyAccountLoginImplementation {
     // TODO: Consider base protocol (for this and other protocol: ChopPasscodeModuleImplementation
     var options : ChopResearchStudyModuleOptions! { get }
+    var requestType : String { get }
 
     func loadSteps(into moduleStepContainer: inout ChopModuleStepCollection)
     
     func createModuleViewController(delegate: ChopResearchStudy, rkTaskToRun: ORKTask) -> UIViewController
     
     mutating func onFinish(withResult taskResult: ORKTaskResult)
+    
+    // TODO: TBD?
+    func createPayloadParamsDictionary(fromCompletedModuleSteps moduleSteps: ChopModuleStepCollection) -> Dictionary<String, String>
 }

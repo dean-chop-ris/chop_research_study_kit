@@ -11,7 +11,5 @@ import Foundation
 
 protocol ChopLoginImplementationClient {
     
-    func registerUser() -> Bool
-
     func loginUser(with userLogin: UserLogin) -> Bool
 }

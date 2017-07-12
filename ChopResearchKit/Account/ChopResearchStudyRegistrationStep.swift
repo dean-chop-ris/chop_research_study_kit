@@ -11,7 +11,12 @@ import ResearchKit
 
 struct ChopResearchStudyRegistrationStep {
 
+    // Step ID
     static let SID_RegistrationStep: String = "RegistrationStep"
+
+    // Parameter ID's
+    static let PID_EMAIL = "email"
+    static let PID_PASSWORD = "password"
 
     init() {
         rkRegistrationStep = ORKRegistrationStep(
@@ -60,4 +65,19 @@ extension ChopResearchStudyRegistrationStep: HasModuleStepDataToCapture {
 
         registration.capture(from: rkResultsArray)
     }
+}
+
+extension ChopResearchStudyRegistrationStep: GeneratesWebRequestData {
+    // MARK: GeneratesWebRequestData
+    public var webId: String {
+        get { return "" }
+        set {  }
+    }
+    
+    func populateWebRequestPostDictionary(dictionary: inout Dictionary<String, String>) {
+        
+        dictionary[ChopResearchStudyRegistrationStep.PID_EMAIL] = registration.email
+        dictionary[ChopResearchStudyRegistrationStep.PID_PASSWORD] = registration.password
+    }
+    
 }

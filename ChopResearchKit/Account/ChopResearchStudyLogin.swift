@@ -22,6 +22,8 @@ struct ChopResearchStudyLogin {
 extension ChopResearchStudyLogin: ChopResearchStudyAccountLoginImplementation {
     // MARK: ChopResearchStudyAccountLoginImplementation
     
+    var requestType : String { get { return "login_user" } }
+
     var options : ChopResearchStudyModuleOptions! { get { return self.loginOptions } }
      
     func loadSteps(into moduleStepContainer: inout ChopModuleStepCollection) {
@@ -59,6 +61,12 @@ extension ChopResearchStudyLogin: ChopResearchStudyAccountLoginImplementation {
     mutating func onFinish(withResult taskResult: ORKTaskResult) {
         
     }
+    
+    func createPayloadParamsDictionary(fromCompletedModuleSteps moduleSteps: ChopModuleStepCollection) -> Dictionary<String, String> {
+        
+        return Dictionary<String, String>()
+
+    }
 }
 
 // MARK: -
@@ -76,4 +84,29 @@ class ChopLoginTaskViewController: ChopRKTaskViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
+}
+
+extension ChopResearchStudyLogin: ChopWebRequestSource {
+    // MARK: ChopWebRequestSource
+    var destinationUrl: String
+    {
+        get
+        {
+            return "https://redcap.chop.edu/api/"
+        }
+    }
+
+    var headerParamsDictionary: Dictionary<String, String> {
+        get
+        {
+            return Dictionary<String, String>()
+        }
+    }
+    
+    var payloadParamsDictionary: Dictionary<String, String> {
+        get
+        {
+            return Dictionary<String, String>()
+        }
+    }
 }

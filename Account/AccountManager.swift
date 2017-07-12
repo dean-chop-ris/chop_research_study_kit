@@ -18,7 +18,11 @@ enum AccountStatus {
 
 struct AccountManager {
 
+    // Parameter ID's
+    static let PID_REQUEST_TYPE = "requestType"
     
+    
+    var completionCallback: ModuleCompleteCallback?
     public private(set) var rkLoginTask : ChopRKTask!
     
     mutating func implement(options: ChopResearchStudyModuleOptions) -> Bool {
@@ -39,7 +43,7 @@ struct AccountManager {
             print("ERROR: case not included: " + options.loginMode.rawValue)
             return false
         }
-
+        
         impl?.loadSteps(into: &moduleSteps)
         
         rkLoginTask = ChopRKTask(identifier: "Login",
@@ -48,7 +52,7 @@ struct AccountManager {
     }
     
     
-    /* mutating */ func createModuleViewController(delegate: ChopResearchStudy) -> UIViewController {
+    func createModuleViewController(delegate: ChopResearchStudy) -> UIViewController {
         
         return /* self.moduleVC = */ (impl?.createModuleViewController(
             delegate: delegate,
@@ -70,27 +74,7 @@ struct AccountManager {
 
 extension AccountManager: ChopLoginImplementationClient {
     // MARK: ChopLoginImplementationClient
-    
-    func registerUser() -> Bool {
 
-        if impl?.options.loginMode != LoginMode.Registration {
-            return false
-        }
-        
-        /*
-        let registrationStep = moduleSteps.findStep(withId: ChopResearchStudyRegistrationStep.SID_RegistrationStep) as! ChopResearchStudyRegistrationStep
-         
-            Note: Unsure of the mechanism managing registration info.
-                    - a server? How to communicate with it
-                    - REDCap? Probably not
-         */
-        
-        
-        
-        
-        return true
-    }
-    
     func loginUser(with userLogin: UserLogin) -> Bool {
         
         let status = getAccountStatus()
@@ -108,7 +92,47 @@ extension AccountManager: ChopLoginImplementationClient {
     }
 }
 
+extension AccountManager: ChopWebRequestSource {
+    // MARK: ChopWebRequestSource
+    var destinationUrl: String
+    {
+        get
+        {
+            return "https://redcap.chop.edu/api/"
+        }
+    }
 
+    var headerParamsDictionary: Dictionary<String, String> {
+        get
+        {
+            var params = ChopWebRequestParameters()
+            
+            //params.load(key: "requestType", value: "register_user")
+            params.load(key: AccountManager.PID_REQUEST_TYPE,
+                        value: (impl?.requestType)!)
+
+            //params.load(key: "content", value: "record")
+            //params.load(key: "format", value: "json")
+            //params.load(key: "action", value: "import")
+            //params.load(key: "type", value: "flat")
+            //params.load(key: "overwriteBehavior", value: "overwrite")
+            
+            return params.postDictionary
+        }
+    }
+    
+    var payloadParamsDictionary: Dictionary<String, String> {
+        get
+        {
+            //return (impl?.createPayloadParamsDictionary(fromCompletedModuleSteps: self.moduleSteps))!
+            var params = ChopWebRequestParameters()
+            
+            params.load(moduleSteps: moduleSteps)
+            
+            return params.postDictionary
+        }
+    }
+}
 
 
 
