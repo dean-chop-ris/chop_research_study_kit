@@ -11,6 +11,16 @@ import UIKit
 
 class ChopResearchStudyViewController: UIViewController {
     
+    var study: ChopResearchStudy {
+        get {
+            return _study
+        }
+        
+        set {
+            _study = newValue
+        }
+    }
+    
     var contentHidden = false {
         didSet {
             guard contentHidden != oldValue && isViewLoaded else { return }
@@ -64,4 +74,11 @@ class ChopResearchStudyViewController: UIViewController {
         */
     }
 
+    private lazy var _study: ChopResearchStudy = {
+        return ChopResearchStudy(initWorkflow: ChopDefaultWorkflow())
+    }()
+}
+
+class ChopDefaultWorkflow : ChopResearchStudyWorkflow {
+    
 }

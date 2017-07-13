@@ -29,6 +29,20 @@ public enum ChopResearchStudyModuleTypeEnum {
 // implement ORKTaskViewControllerDelegate
 class ChopResearchStudy: NSObject {
 
+    var initialWorkflowAction: ChopWorkflowAction {
+        
+        get {
+            var action = ChopWorkflowAction()
+            
+            action.actionType = ChopWorkflowActionTypeEnum.ToOnboarding
+            
+            return action
+        }
+    }
+    
+    init(initWorkflow: ChopResearchStudyWorkflow) {
+        self.workflow = initWorkflow
+    }
     
     func getFile1() -> String {
         //let moduleInfo = modules[ChopResearchStudyModuleTypeEnum.ShortWalkActiveTask]
@@ -83,6 +97,7 @@ class ChopResearchStudy: NSObject {
     fileprivate var modules: [ChopResearchStudyModuleTypeEnum:ModuleInformation] = [:]
     private var dataStore: ChopDataStore = ChopDataStore()
     fileprivate var passcodeManager = PasscodeManager()
+    private var workflow: ChopResearchStudyWorkflow
 }
 
 extension ChopResearchStudy : ORKTaskViewControllerDelegate {

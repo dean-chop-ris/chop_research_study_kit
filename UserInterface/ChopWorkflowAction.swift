@@ -11,7 +11,8 @@ import Foundation
 enum ChopWorkflowActionTypeEnum {
     case UserMessage // Supply a user message, no workflow
     case ToStudy     // go to study
-    case ToConsent   // go to consent
+    case ToOnboarding   // go to onboarding
+    case ToWithdrawal   // go to withdrawal
     case None        // do nothing
 }
 
