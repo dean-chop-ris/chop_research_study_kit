@@ -18,8 +18,8 @@ struct ChopUIAlert {
         self.title = title
         self.message = message
     }
-    
-    func show() {
+
+    func show(completionMethod: (() -> Swift.Void)? = nil) {
         
         let alertController = UIAlertController(title: self.title,
                                                 message: self.message,
@@ -36,7 +36,7 @@ struct ChopUIAlert {
         // Present Alert
         self.parentViewController.present(alertController,
                                           animated: true,
-                                          completion:nil)
+                                          completion:completionMethod)
         
     }
     

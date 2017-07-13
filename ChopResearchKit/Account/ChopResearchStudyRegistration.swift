@@ -11,9 +11,7 @@ import ResearchKit
 
 struct ChopResearchStudyRegistration {
     
-    static let REQUEST_TYPE = "register_user"
-
-    init(forClient clientInit: ChopLoginImplementationClient,
+     init(forClient clientInit: ChopLoginImplementationClient,
          withOptions options: ChopResearchStudyModuleOptions) {
         registrationOptions = options
         client = clientInit
@@ -29,7 +27,7 @@ extension ChopResearchStudyRegistration: ChopResearchStudyAccountLoginImplementa
     
     var requestType: String {
         get {
-            return ChopResearchStudyRegistration.REQUEST_TYPE
+            return ChopWebRequestType.Registration.rawValue
         }
     }
     
@@ -68,9 +66,24 @@ extension ChopResearchStudyRegistration: ChopResearchStudyAccountLoginImplementa
 
     mutating func onFinish(withResult taskResult: ORKTaskResult) {
 
-        //if client.registerUser() == false {
-            // handle error
-        //}
+    }
+
+    func addUserMessage(action: inout ChopWorkflowAction) {
+
+        let responseHeaders = action.webRequestResponse?.headerFields
+        
+        guard let result = responseHeaders?[ChopWebRequestResponse.PID_REQUEST_RESULT] else {
+            return
+        }
+
+        if result == ChopWebRequestResponse.PV_SUCCESS {
+            action.userMessageTitle = "Registration successful."
+            action.userMessage = "Please verify using your provided email."
+        }
+        if result == ChopWebRequestResponse.PV_ACCT_FOUND {
+            action.userMessageTitle = "Registration failed."
+            action.userMessage = "An account using that email is already in the database."
+        }
     }
 
     func createPayloadParamsDictionary(fromCompletedModuleSteps moduleSteps: ChopModuleStepCollection) -> Dictionary<String, String> {

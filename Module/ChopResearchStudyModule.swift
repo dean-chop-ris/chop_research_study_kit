@@ -9,12 +9,17 @@
 import Foundation
 import ResearchKit
 
+enum ChopWebRequestType: String {
+    case Registration = "register_user"
+    case Login  = "login_user"
+}
+
 protocol ChopResearchStudyModule {
 
     var identifier: String { get }
     var errorMessage: String { get }
     var moduleCompleteCallback: ModuleCompleteCallback? { get set }
-
+    
     mutating func setOptions(options: ChopResearchStudyModuleOptions)
     
     func createModuleViewController(delegate: ChopResearchStudy) -> UIViewController
@@ -25,4 +30,5 @@ protocol ChopResearchStudyModule {
     
     mutating func onFinish(withResult taskResult: ORKTaskResult)
 
+    func addUserMessage(action: inout ChopWorkflowAction)
 }

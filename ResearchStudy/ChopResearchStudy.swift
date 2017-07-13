@@ -9,7 +9,7 @@
 import Foundation
 import ResearchKit
 
-typealias ModuleCompleteCallback = (ChopWebRequestResponse) -> Void
+typealias ModuleCompleteCallback = (ChopWorkflowAction) -> Void
 
 public enum ChopResearchStudyModuleTypeEnum {
     case Login
@@ -105,8 +105,15 @@ extension ChopResearchStudy : ORKTaskViewControllerDelegate {
 
                 //broker.send(request: request)
                 broker.send(request: request, onCompletion: { (response, error) in
+
                     if self.onModuleCompleteCallback != nil {
-                        self.onModuleCompleteCallback!(response)
+                        var workflowAction = ChopWorkflowAction()
+                        
+                        workflowAction.actionType = ChopWorkflowActionTypeEnum.UserMessage
+                        workflowAction.webRequestResponse = response
+                        module.addUserMessage(action: &workflowAction)
+
+                        self.onModuleCompleteCallback!(workflowAction)
                         response.process()
                     }
                     }

@@ -51,6 +51,10 @@ extension ChopResearchStudyVerification: ChopResearchStudyAccountLoginImplementa
         
     }
     
+    func addUserMessage(action: inout ChopWorkflowAction) {
+        
+    }
+    
     func createPayloadParamsDictionary(fromCompletedModuleSteps moduleSteps: ChopModuleStepCollection) -> Dictionary<String, String> {
      
         return Dictionary<String, String>()

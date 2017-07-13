@@ -19,7 +19,10 @@ protocol ChopResearchStudyAccountLoginImplementation {
     func createModuleViewController(delegate: ChopResearchStudy, rkTaskToRun: ORKTask) -> UIViewController
     
     mutating func onFinish(withResult taskResult: ORKTaskResult)
-    
+
+    func addUserMessage(action: inout ChopWorkflowAction)
+
     // TODO: TBD?
     func createPayloadParamsDictionary(fromCompletedModuleSteps moduleSteps: ChopModuleStepCollection) -> Dictionary<String, String>
+    
 }

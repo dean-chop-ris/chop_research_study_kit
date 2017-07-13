@@ -68,6 +68,10 @@ struct AccountManager {
         impl?.onFinish(withResult: taskResult)
     }
 
+    func addUserMessage(action: inout ChopWorkflowAction) {
+        impl?.addUserMessage(action: &action)
+    }
+
     fileprivate var impl: ChopResearchStudyAccountLoginImplementation?
     fileprivate var moduleSteps = ChopModuleStepCollection()
 }

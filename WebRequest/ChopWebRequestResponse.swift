@@ -36,24 +36,6 @@ struct ChopWebRequestResponse {
         }
     }
 
-    public var hasUserMessage: Bool {
-        get { return !userMessage.isEmpty }
-    }
-        
-    public var userMessage: String {
-        
-        get {
-            return _userMessage.message(forResponseHeaders: self.headerFields)
-        }
-    }
-
-    public var userMessageTitle: String {
-        
-        get {
-            return _userMessage.title(forResponseHeaders: self.headerFields)
-        }
-    }
-
     public private(set) var headerFields = Dictionary<String, String>()
     
     init(httpResponse: HTTPURLResponse) {
@@ -79,5 +61,4 @@ struct ChopWebRequestResponse {
     }
 
     private var statusCode: Int
-    private var _userMessage = ChopWebRequestResponseUserMessage()
 }

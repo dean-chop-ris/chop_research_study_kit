@@ -38,7 +38,7 @@ struct ChopWebRequestResponseUserMessage {
         }
         
         switch (requestType) {
-            case ChopResearchStudyRegistration.REQUEST_TYPE:
+            case ChopWebRequestType.Registration.rawValue:
                 if result == ChopWebRequestResponse.PV_SUCCESS {
                     title = "Registration successful."
                     msg = "Please verify using your provided email."
@@ -48,7 +48,7 @@ struct ChopWebRequestResponseUserMessage {
                     msg = "An account using that email is already in the database."
                 }
                 break
-            case ChopResearchStudyLogin.REQUEST_TYPE:
+            case ChopWebRequestType.Login.rawValue:
                 if result == ChopWebRequestResponse.PV_SUCCESS {
                     title = "Login successful."
                     msg = "Proceeding to main menu."

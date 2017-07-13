@@ -11,8 +11,6 @@ import ResearchKit
 
 struct ChopResearchStudyLogin {
  
-    static let REQUEST_TYPE = "login_user"
-    
     init(withOptions optionsInit: ChopResearchStudyModuleOptions) {
         loginOptions = optionsInit
     }
@@ -24,7 +22,7 @@ struct ChopResearchStudyLogin {
 extension ChopResearchStudyLogin: ChopResearchStudyAccountLoginImplementation {
     // MARK: ChopResearchStudyAccountLoginImplementation
     
-    var requestType : String { get { return ChopResearchStudyLogin.REQUEST_TYPE } }
+    var requestType : String { get { return ChopWebRequestType.Login.rawValue } }
 
     var options : ChopResearchStudyModuleOptions! { get { return self.loginOptions } }
      
@@ -62,6 +60,32 @@ extension ChopResearchStudyLogin: ChopResearchStudyAccountLoginImplementation {
     
     mutating func onFinish(withResult taskResult: ORKTaskResult) {
         
+    }
+ 
+    func addUserMessage(action: inout ChopWorkflowAction) {
+
+        let responseHeaders = action.webRequestResponse?.headerFields
+        
+        guard let result = responseHeaders?[ChopWebRequestResponse.PID_REQUEST_RESULT] else {
+            return
+        }
+        
+        if result == ChopWebRequestResponse.PV_SUCCESS {
+            action.userMessageTitle = "Login successful."
+            action.userMessage = "Proceeding to main menu."
+        }
+        if result == ChopWebRequestResponse.PV_ACCT_NOT_FOUND {
+            action.userMessageTitle = "Login failed."
+            action.userMessage = "Account not found."
+        }
+        if result == ChopWebRequestResponse.PV_ACCT_NOT_CONFIRMED {
+            action.userMessageTitle = "Login failed."
+            action.userMessage = "Account not confirmed."
+        }
+        if result == ChopWebRequestResponse.PV_PASSWORD_INCORRECT {
+            action.userMessageTitle = "Login failed."
+            action.userMessage = "Password Incorrect."
+        }
     }
     
     func createPayloadParamsDictionary(fromCompletedModuleSteps moduleSteps: ChopModuleStepCollection) -> Dictionary<String, String> {

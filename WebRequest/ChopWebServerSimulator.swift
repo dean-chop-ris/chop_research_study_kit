@@ -20,10 +20,10 @@ struct ChopWebServerSimulator {
             if let val = paramsDictionary[AccountManager.PID_REQUEST_TYPE] {
 
                 switch (val) {
-                    case ChopResearchStudyRegistration.REQUEST_TYPE:
+                    case ChopWebRequestType.Registration.rawValue:
                     responseDictionary = generateRegistrationResponse()
                     break
-                case ChopResearchStudyLogin.REQUEST_TYPE:
+                case ChopWebRequestType.Login.rawValue:
                     responseDictionary = generateLoginResponse()
                     break
                 default:
@@ -48,7 +48,7 @@ struct ChopWebServerSimulator {
         //let requestResult = ChopWebRequestResponse.PV_ACCT_FOUND
         
         
-        responseDictionary[AccountManager.PID_REQUEST_TYPE] = ChopResearchStudyRegistration.REQUEST_TYPE
+        responseDictionary[AccountManager.PID_REQUEST_TYPE] = ChopWebRequestType.Registration.rawValue
         responseDictionary[ChopWebRequestResponse.PID_REQUEST_RESULT] = requestResult
         
         return responseDictionary
@@ -64,7 +64,7 @@ struct ChopWebServerSimulator {
         //let requestResult = ChopWebRequestResponse.PV_PASSWORD_INCORRECT
         
         
-        responseDictionary[AccountManager.PID_REQUEST_TYPE] = ChopResearchStudyLogin.REQUEST_TYPE
+        responseDictionary[AccountManager.PID_REQUEST_TYPE] = ChopWebRequestType.Login.rawValue
         responseDictionary[ChopWebRequestResponse.PID_REQUEST_RESULT] = requestResult
         
         return responseDictionary
