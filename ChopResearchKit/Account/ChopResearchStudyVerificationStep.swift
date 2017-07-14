@@ -10,7 +10,9 @@ import Foundation
 import ResearchKit
 
 struct ChopResearchStudyVerificationStep {
-    
+ 
+    static let PID_EMAIL = "email"
+
     init() {
         rkVerificationStep = ORKVerificationStep(identifier: "VerificationStep", text: "Please verify", verificationViewControllerClass: ChopVerificationStepViewController.self)
     }
@@ -41,6 +43,20 @@ extension ChopResearchStudyVerificationStep: ChopResearchStudyModuleStep {
     // MARK: ChopResearchStudyModuleStep
     
     var stepId: String { get { return rkVerificationStep.identifier } }
+    
+}
+
+extension ChopResearchStudyVerificationStep: GeneratesWebRequestData {
+    // MARK: GeneratesWebRequestData
+    public var webId: String {
+        get { return "" }
+        set {  }
+    }
+    
+    func populateWebRequestPostDictionary(dictionary: inout Dictionary<String, String>) {
+        
+        dictionary[ChopResearchStudyVerificationStep.PID_EMAIL] = "user@chop.com"
+    }
     
 }
 

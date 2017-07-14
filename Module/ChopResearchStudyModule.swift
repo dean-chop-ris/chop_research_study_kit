@@ -12,6 +12,7 @@ import ResearchKit
 enum ChopWebRequestType: String {
     case Registration = "register_user"
     case Login  = "login_user"
+    case Confirmation = "is_account_confirmed"
 }
 
 protocol ChopResearchStudyModule {

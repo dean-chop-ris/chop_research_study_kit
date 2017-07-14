@@ -18,6 +18,7 @@ struct ChopWebRequestResponse {
     static let PV_SUCCESS = "success"
     static let PV_ACCT_FOUND = "account_found"
     static let PV_ACCT_NOT_FOUND = "account_not_found"
+    static let PV_ACCT_CONFIRMED = "account_confirmed"
     static let PV_ACCT_NOT_CONFIRMED = "account_not_confirmed"
     static let PV_PASSWORD_INCORRECT = "password_incorrect"
     

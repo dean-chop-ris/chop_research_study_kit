@@ -26,6 +26,9 @@ struct ChopWebServerSimulator {
                 case ChopWebRequestType.Login.rawValue:
                     responseDictionary = generateLoginResponse()
                     break
+                case ChopWebRequestType.Confirmation.rawValue:
+                    responseDictionary = generateVerificationResponse()
+                    break
                 default:
                     break
                 }
@@ -69,4 +72,20 @@ struct ChopWebServerSimulator {
         
         return responseDictionary
     }
+    
+    func generateVerificationResponse() -> Dictionary<String, String> {
+        
+        var responseDictionary = Dictionary<String, String>()
+        
+        let requestResult = ChopWebRequestResponse.PV_ACCT_CONFIRMED
+        //let requestResult = ChopWebRequestResponse.PV_ACCT_NOT_CONFIRMED
+        //let requestResult = ChopWebRequestResponse.PV_SUCCESS
+        //let requestResult = ChopWebRequestResponse.PV_ACCT_NOT_FOUND
+        
+        responseDictionary[AccountManager.PID_REQUEST_TYPE] = ChopWebRequestType.Confirmation.rawValue
+        responseDictionary[ChopWebRequestResponse.PID_REQUEST_RESULT] = requestResult
+        
+        return responseDictionary
+    }
+
 }

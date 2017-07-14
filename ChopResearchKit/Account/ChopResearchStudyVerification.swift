@@ -13,16 +13,29 @@ struct ChopResearchStudyVerification {
     
     init(withOptions optionsInit: ChopResearchStudyModuleOptions) {
         verificationOptions = optionsInit
+        
+        userMessages.add(
+            webRequestResponse: ChopWebRequestResponse.PV_ACCT_CONFIRMED,
+            title: "Confirmation Successful",
+            message: "Account Confirmed")
+        userMessages.add(
+            webRequestResponse: ChopWebRequestResponse.PV_ACCT_NOT_CONFIRMED,
+            title: "Confirmation Failure",
+            message: "Account still awaiting confirmation")
+        userMessages.add(
+            webRequestResponse: ChopWebRequestResponse.PV_ACCT_NOT_FOUND,
+            title: "Confirmation Failure",
+            message: "Account not found")
     }
     
     fileprivate var verificationOptions: ChopResearchStudyModuleOptions
-
+    fileprivate var userMessages = ChopUserMessageCollection()
 }
 
 extension ChopResearchStudyVerification: ChopResearchStudyAccountLoginImplementation {
     // MARK: ChopResearchStudyAccountLoginImplementation
 
-    var requestType : String { get { return "verify_user" } }
+    var requestType : String { get { return ChopWebRequestType.Confirmation.rawValue } }
 
     var options : ChopResearchStudyModuleOptions! { get { return self.verificationOptions } }
 
@@ -53,6 +66,20 @@ extension ChopResearchStudyVerification: ChopResearchStudyAccountLoginImplementa
     
     func addUserMessage(action: inout ChopWorkflowAction) {
         
+        let responseHeaders = action.webRequestResponse?.headerFields
+        
+        guard let result = responseHeaders?[ChopWebRequestResponse.PID_REQUEST_RESULT] else {
+            return
+        }
+
+        var title = ""
+        var message = ""
+        
+        if userMessages.getUserText(webRequestResponse: result, title: &title, message: &message) {
+            
+            action.userMessageTitle = title
+            action.userMessage = message
+        }
     }
     
     func createPayloadParamsDictionary(fromCompletedModuleSteps moduleSteps: ChopModuleStepCollection) -> Dictionary<String, String> {
