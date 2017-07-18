@@ -70,9 +70,9 @@ extension ChopResearchStudyRegistration: ChopResearchStudyAccountLoginImplementa
 
     func addUserMessage(action: inout ChopWorkflowAction) {
 
-        let responseHeaders = action.webRequestResponse?.headerFields
+        let responseData = action.webRequestResponse?.data
         
-        guard let result = responseHeaders?[ChopWebRequestResponse.PID_REQUEST_RESULT] else {
+        guard let result = responseData?[ChopWebRequestResponse.PID_REQUEST_RESULT] else {
             return
         }
 

@@ -1,11 +1,9 @@
 //
 //  ChopWebRequestBroker.swift
-//  Camelot
 //
 //  Created by Ritter, Dean on 1/25/17.
 //
 //  ChopWebRequestBroker.swift
-//  CHOP_RK
 //
 //  Created by Ritter, Dean on 5/11/17.
 //  Copyright © 2017 Ritter, Dean. All rights reserved.
@@ -14,13 +12,6 @@
 import Foundation
 
 typealias ServiceResponse = (ChopWebRequestResponse, NSError?) -> Void
-
-protocol WebRequestSendable {
-    
-    func populateWebRequestParamsDictionary(dictionary: inout Dictionary<String, String>)
-
-    var destinationUrl: String { get }
-}
 
 struct ChopWebRequestBroker {
 
@@ -36,57 +27,25 @@ struct ChopWebRequestBroker {
         session = URLSession(configuration: URLSessionConfiguration.default)
     }
 
-    func send(request: WebRequestSendable) {
+    func send(request: ChopWebRequest) {
         send(request: request, onCompletion: { _, _ in })
     }
 
-    func send(request: WebRequestSendable, onCompletion: @escaping ServiceResponse) {
+    func send(request: ChopWebRequest, onCompletion: @escaping ServiceResponse) {
         
-        guard let url = URL(string: request.destinationUrl) else {
-            print("Error: cannot create URL: " + request.destinationUrl)
-            return
-        }
-        
-        // set up dictionary of JSON parameters to be included in the web request
-        var paramsDictionary = Dictionary<String, String>()
-        
-        request.populateWebRequestParamsDictionary(dictionary: &paramsDictionary)
-        
-        // create params string to be included in request
-        var params = ""
-        for kvp in paramsDictionary {
-            if params.lengthOfBytes(using: String.Encoding.ascii) > 0 {
-                params += "&"
-            }
-            params += "\(kvp.key)=\(kvp.value)"
-        }
-        
-        // set up request
-        var urlRequest = URLRequest(url: url)
-        
-        let body = NSMutableData()
-
-        body.append(params.data(using: String.Encoding.utf8)!)
-
-        urlRequest.httpMethod = "POST"
-        urlRequest.httpBody = body as Data
+        let urlRequest = request.urlRequest
         
         // send request
-        let dataTask = session.dataTask(with: urlRequest, completionHandler: { (data, response, error) in
+        let dataTask = session.dataTask(with: urlRequest!, completionHandler: { (data, response, error) in
             
             if error != nil {
                 print(error!)
             }
             if response != nil {
                 if let httpResponse = response as? HTTPURLResponse {
-                    print("Status code: (\(httpResponse.statusCode))")
-                    if httpResponse.statusCode == 200 {
-                    } else {
-                        print(response!)
-                    }
                     
-                    //let resp = ChopWebRequestResponse(httpResponse: httpResponse)
-                    let resp = ChopWebRequestResponse(usingSimulator:ChopWebServerSimulator(withParamsDictionary: paramsDictionary))
+                    let resp = ChopWebRequestResponse(httpResponse: httpResponse, data: data!)
+                    //let resp = ChopWebRequestResponse(usingSimulator:ChopWebServerSimulator(withParamsDictionary: paramsDictionary))
   
                     onCompletion(resp, nil)
                     
@@ -97,31 +56,7 @@ struct ChopWebRequestBroker {
         })
         dataTask.resume()
     }
-    /*
-    func parseJSON(data responseData: Data) {
-        do {
-            guard let jsonDictionary = try JSONSerialization.jsonObject(with: responseData, options: []) as? [String: AnyObject] else {
-                print("error trying to convert data to JSON")
-                return
-            }
-            
-            // now we have the serialized info, let's just print it to prove we can access it
-            print("The JSON is: " + jsonDictionary.description)
-            
-            // the object is a dictionary
-            // so we just access the title using the "title" key
-            // so check for a title and print it if we have one
-            guard let title = jsonDictionary["title"] as? String else {
-                print("Could not get title from JSON")
-                return
-            }
-            print("The title is: " + title)
-        } catch  {
-            print("error trying to convert data to JSON")
-            return
-        }
-    }
-    */
+    
     private var client: ChopWebDataStoreClient?
     private var session: URLSession
 }

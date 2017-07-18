@@ -47,8 +47,8 @@ struct ChopWebServerSimulator {
         
         var responseDictionary = Dictionary<String, String>()
     
-        let requestResult = ChopWebRequestResponse.PV_SUCCESS
-        //let requestResult = ChopWebRequestResponse.PV_ACCT_FOUND
+        //let requestResult = ChopWebRequestResponse.PV_SUCCESS
+        let requestResult = ChopWebRequestResponse.PV_ACCT_FOUND
         
         
         responseDictionary[AccountManager.PID_REQUEST_TYPE] = ChopWebRequestType.Registration.rawValue

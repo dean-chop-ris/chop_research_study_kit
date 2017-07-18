@@ -29,7 +29,7 @@ struct ChopWebRequestResponse {
                 return false
             }
             
-            if let val = headerFields[ChopWebRequestResponse.PID_REQUEST_RESULT] {
+            if let val = data[ChopWebRequestResponse.PID_REQUEST_RESULT] {
                 return val == ChopWebRequestResponse.PV_SUCCESS
             }
  
@@ -37,28 +37,46 @@ struct ChopWebRequestResponse {
         }
     }
 
-    public private(set) var headerFields = Dictionary<String, String>()
+    public private(set) var data = Dictionary<String, String>()
     
-    init(httpResponse: HTTPURLResponse) {
+    init(httpResponse: HTTPURLResponse, data: Data) {
         
         self.statusCode = httpResponse.statusCode
 
-        // Headers
-        let headers = httpResponse.allHeaderFields
-         
-        for header in headers {
-            self.headerFields[header.key as! String] = self.headerFields[header.value as! String]
-        }
+        parseJSON(data: data)
+        
+        print("----- HTTP RESPONSE -----------------")
+        print("URL: " + (httpResponse.url?.absoluteString)!)
+        print("Status Code: " + self.statusCode.description)
+        print("Body: ")
+        print(self.data)
+        print("----- /HTTP RESPONSE ----------------")
     }
 
     init(usingSimulator simulator: ChopWebServerSimulator) {
         
         self.statusCode = simulator.statusCode
-        self.headerFields = simulator.simulatedResponseHeaders
+        self.data = simulator.simulatedResponseHeaders
     }
     
     func process() {
         
+    }
+
+    private mutating func parseJSON(data responseData: Data) {
+        do {
+            guard let jsonDictionary = try JSONSerialization.jsonObject(with: responseData, options: []) as? [String: AnyObject] else {
+                print("Error converting data to JSON")
+                return
+            }
+            
+            //print("The JSON is: " + jsonDictionary.description)
+            self.data = jsonDictionary as! Dictionary<String, String>
+            
+        } catch  {
+            print("Error trying to convert data to JSON")
+            return
+        }
     }
 
     private var statusCode: Int
