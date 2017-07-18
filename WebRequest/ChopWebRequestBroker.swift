@@ -27,10 +27,6 @@ struct ChopWebRequestBroker {
         session = URLSession(configuration: URLSessionConfiguration.default)
     }
 
-    func send(request: ChopWebRequest) {
-        send(request: request, onCompletion: { _, _ in })
-    }
-
     func send(request: ChopWebRequest, onCompletion: @escaping ServiceResponse) {
         
         let urlRequest = request.urlRequest

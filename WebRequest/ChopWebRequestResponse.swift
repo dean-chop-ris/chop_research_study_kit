@@ -59,14 +59,10 @@ struct ChopWebRequestResponse {
         self.data = simulator.simulatedResponseHeaders
     }
     
-    func process() {
-        
-    }
-
     private mutating func parseJSON(data responseData: Data) {
         do {
             guard let jsonDictionary = try JSONSerialization.jsonObject(with: responseData, options: []) as? [String: AnyObject] else {
-                print("Error converting data to JSON")
+                print("ChopWebRequestResponse: Error converting data to JSON")
                 return
             }
             
@@ -74,7 +70,7 @@ struct ChopWebRequestResponse {
             self.data = jsonDictionary as! Dictionary<String, String>
             
         } catch  {
-            print("Error trying to convert data to JSON")
+            print("ChopWebRequestResponse: Error trying to convert data to JSON")
             return
         }
     }

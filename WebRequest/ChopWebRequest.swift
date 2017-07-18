@@ -94,12 +94,12 @@ struct ChopWebRequest {
                 withJSONObject: postArray,
                 options: JSONSerialization.WritingOptions.prettyPrinted) as Data?
                 else {
-                    print("Error converting data to JSON")
+                    print("ChopWebRequest: Error converting data to JSON")
                     return
             }
             payload = String(data: jsonData, encoding: String.Encoding.utf8)!
         } catch  {
-            print("Error trying to convert data to JSON")
+            print("ChopWebRequest: Error trying to convert data to JSON")
             return
         }
 

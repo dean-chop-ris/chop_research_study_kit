@@ -60,12 +60,7 @@ class ChopResearchStudy: NSObject {
         }
    }
 
-    /*
-    func add(moduleType: ChopResearchStudyModuleTypeEnum, dataStructureType: System.Type) {
-    }
-    */
-    
-    func add(moduleType: ChopResearchStudyModuleTypeEnum, moduleToAdd: ChopResearchStudyModule) {
+   func add(moduleType: ChopResearchStudyModuleTypeEnum, moduleToAdd: ChopResearchStudyModule) {
 
         //moduleToAdd.moduleCompleteCallback = self.onModuleCompleteCallback
         modules[moduleType] = ModuleInformation(module: moduleToAdd)
@@ -118,19 +113,17 @@ extension ChopResearchStudy : ORKTaskViewControllerDelegate {
                 let request = ChopWebRequest(withSource: module as! ChopWebRequestSource)                
                 let broker = ChopWebRequestBroker(dataStoreClient: self)
 
-                //broker.send(request: request)
                 broker.send(request: request, onCompletion: { (response, error) in
 
-                    if self.onModuleCompleteCallback != nil {
-                        var workflowAction = ChopWorkflowAction()
+                        if self.onModuleCompleteCallback != nil {
+                            var workflowAction = ChopWorkflowAction()
                         
-                        workflowAction.actionType = ChopWorkflowActionTypeEnum.UserMessage
-                        workflowAction.webRequestResponse = response
-                        module.addUserMessage(action: &workflowAction)
+                            workflowAction.actionType = ChopWorkflowActionTypeEnum.UserMessage
+                            workflowAction.webRequestResponse = response
+                            module.addUserMessage(action: &workflowAction)
 
-                        self.onModuleCompleteCallback!(workflowAction)
-                        response.process()
-                    }
+                            self.onModuleCompleteCallback!(workflowAction)
+                        }
                     }
                 )
 
