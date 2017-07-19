@@ -22,7 +22,11 @@ struct ChopWorkflowAction {
         get { return !userMessage.isEmpty }
     }
     
-    var webRequestResponse: ChopWebRequestResponse? = nil
+    init(response: ChopWebRequestResponse? = nil) {
+        webRequestResponse = response
+    }
+    
+    var webRequestResponse: ChopWebRequestResponse?
     var userMessage: String = ""
     var userMessageTitle: String = ""
     var actionType = ChopWorkflowActionTypeEnum.None

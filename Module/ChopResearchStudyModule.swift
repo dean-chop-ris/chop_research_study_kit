@@ -31,5 +31,6 @@ protocol ChopResearchStudyModule {
     
     mutating func onFinish(withResult taskResult: ORKTaskResult)
 
-    func addUserMessage(action: inout ChopWorkflowAction)
+    //func addUserMessage(action: inout ChopWorkflowAction)
+    func createWorkflowAction(from response: ChopWebRequestResponse) -> ChopWorkflowAction
 }

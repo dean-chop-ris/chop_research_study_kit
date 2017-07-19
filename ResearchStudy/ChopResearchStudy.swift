@@ -44,13 +44,6 @@ class ChopResearchStudy: NSObject {
         self.workflow = initWorkflow
     }
     
-    func getFile1() -> String {
-        //let moduleInfo = modules[ChopResearchStudyModuleTypeEnum.ShortWalkActiveTask]
-        //let shortWalkTask = moduleInfo?.module as! PSA_ShortWalkActiveTask
-        
-        return "Unkown"
-    }
-
     func registerContainingViewController(onModuleComplete: @escaping ModuleCompleteCallback) {
         
         onModuleCompleteCallback = onModuleComplete
@@ -62,7 +55,6 @@ class ChopResearchStudy: NSObject {
 
    func add(moduleType: ChopResearchStudyModuleTypeEnum, moduleToAdd: ChopResearchStudyModule) {
 
-        //moduleToAdd.moduleCompleteCallback = self.onModuleCompleteCallback
         modules[moduleType] = ModuleInformation(module: moduleToAdd)
     }
     
@@ -100,9 +92,6 @@ extension ChopResearchStudy : ORKTaskViewControllerDelegate {
     
     func taskViewController(_ taskViewController: ORKTaskViewController, didFinishWith reason: ORKTaskViewControllerFinishReason, error: Error?) {
         
-        //let chopTaskViewController = taskViewController as! ChopRKTaskViewController
-        //var moduleInfo = modules[chopTaskViewController.taskType]!
-
         if reason == ORKTaskViewControllerFinishReason.completed {
 
             var module = getModule(taskViewController: taskViewController)
@@ -116,12 +105,9 @@ extension ChopResearchStudy : ORKTaskViewControllerDelegate {
                 broker.send(request: request, onCompletion: { (response, error) in
 
                         if self.onModuleCompleteCallback != nil {
-                            var workflowAction = ChopWorkflowAction()
-                        
-                            workflowAction.actionType = ChopWorkflowActionTypeEnum.UserMessage
-                            workflowAction.webRequestResponse = response
-                            module.addUserMessage(action: &workflowAction)
 
+                            let workflowAction = module.createWorkflowAction(from: response)
+                            
                             self.onModuleCompleteCallback!(workflowAction)
                         }
                     }
@@ -139,42 +125,30 @@ extension ChopResearchStudy : ORKTaskViewControllerDelegate {
             
         }
         taskViewController.dismiss(animated: true, completion: nil)
-        //moduleInfo.viewController = nil
     }
     
     func taskViewController(_ taskViewController: ORKTaskViewController, shouldPresent step: ORKStep) -> Bool {
 
-        //guard let orkTask = taskViewController.task else {
-        //    return true
-        //}
         var shouldPresent = ShouldPresentResultEnum.YES
-
-        //for chopModuleInfo in modules.values {
-            //let chopModule = chopModuleInfo.module
-            
-            //if chopModule.identifier == orkTask.identifier {
-
         let chopModule = getModule(taskViewController: taskViewController)
         
-                shouldPresent = chopModule.shouldPresentStep(
-                    stepIdToPresent: step.identifier,
-                    givenResult: taskViewController.result)
+        shouldPresent = chopModule.shouldPresentStep(
+            stepIdToPresent: step.identifier,
+            givenResult: taskViewController.result)
                 
-                if shouldPresent == ShouldPresentResultEnum.NO {
-                    
-                    sendUserMessage(forClientWithId: chopModule.identifier, title: "Error", message: chopModule.errorMessage)
-                 }
-                
-                if shouldPresent == ShouldPresentResultEnum.PASSCODE {
-                    // This is the wait step just before the passcoded step.
-                    // Let it present, but behind the passcode VC
-                    shouldPresent = ShouldPresentResultEnum.YES
-
-                    passcodeManager.verify(withContainingTaskVC: taskViewController)
-                }
-            //}
-        //}
+        if shouldPresent == ShouldPresentResultEnum.NO {
+            
+            sendUserMessage(forClientWithId: chopModule.identifier, title: "Error", message: chopModule.errorMessage)
+        }
         
+        if shouldPresent == ShouldPresentResultEnum.PASSCODE {
+            // This is the wait step just before the passcoded step.
+            // Let it present, but behind the passcode VC
+            shouldPresent = ShouldPresentResultEnum.YES
+
+            passcodeManager.verify(withContainingTaskVC: taskViewController)
+        }
+
         return shouldPresent == ShouldPresentResultEnum.YES
     }
     
@@ -207,7 +181,6 @@ extension ChopResearchStudy : ChopWebDataStoreClient {
     
 }
 
-
 extension ChopResearchStudy: ChopResearchStudyModuleClient {
     // MARK: ChopResearchStudyModuleClient
     func sendUserMessage(forClientWithId clientId: String, title: String, message: String) {
@@ -216,11 +189,11 @@ extension ChopResearchStudy: ChopResearchStudyModuleClient {
             
             if chopModule.identifier == clientId {
                 
-            let alert = ChopUIAlert(forViewController: chopModuleInfo.viewController!,
-                                            withTitle: title,
-                                            andMessage: message)
+                let alert = ChopUIAlert(forViewController: chopModuleInfo.viewController!,
+                                        withTitle: title,
+                                        andMessage: message)
                     
-                    alert.show()
+                alert.show()
             }
         }
     }
