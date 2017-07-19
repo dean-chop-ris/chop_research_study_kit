@@ -82,7 +82,7 @@ class ChopResearchStudy: NSObject {
         
         let viewController = module?.createModuleViewController(delegate: self)
         
-        //module?.viewController = viewController
+        modules[taskType]?.viewController = viewController
         
         return viewController!
     }
@@ -100,12 +100,12 @@ extension ChopResearchStudy : ORKTaskViewControllerDelegate {
     
     func taskViewController(_ taskViewController: ORKTaskViewController, didFinishWith reason: ORKTaskViewControllerFinishReason, error: Error?) {
         
-        let chopTaskViewController = taskViewController as! ChopRKTaskViewController
-        var moduleInfo = modules[chopTaskViewController.taskType]!
+        //let chopTaskViewController = taskViewController as! ChopRKTaskViewController
+        //var moduleInfo = modules[chopTaskViewController.taskType]!
 
         if reason == ORKTaskViewControllerFinishReason.completed {
 
-            var module: ChopResearchStudyModule = moduleInfo.module
+            var module = getModule(taskViewController: taskViewController)
             
             module.onFinish(withResult: taskViewController.result);
             
@@ -139,21 +139,23 @@ extension ChopResearchStudy : ORKTaskViewControllerDelegate {
             
         }
         taskViewController.dismiss(animated: true, completion: nil)
-        moduleInfo.viewController = nil
+        //moduleInfo.viewController = nil
     }
     
     func taskViewController(_ taskViewController: ORKTaskViewController, shouldPresent step: ORKStep) -> Bool {
 
-        guard let orkTask = taskViewController.task else {
-            return true
-        }
+        //guard let orkTask = taskViewController.task else {
+        //    return true
+        //}
         var shouldPresent = ShouldPresentResultEnum.YES
 
-        for chopModuleInfo in modules.values {
-            let chopModule = chopModuleInfo.module
+        //for chopModuleInfo in modules.values {
+            //let chopModule = chopModuleInfo.module
             
-            if chopModule.identifier == orkTask.identifier {
+            //if chopModule.identifier == orkTask.identifier {
 
+        let chopModule = getModule(taskViewController: taskViewController)
+        
                 shouldPresent = chopModule.shouldPresentStep(
                     stepIdToPresent: step.identifier,
                     givenResult: taskViewController.result)
@@ -170,11 +172,18 @@ extension ChopResearchStudy : ORKTaskViewControllerDelegate {
 
                     passcodeManager.verify(withContainingTaskVC: taskViewController)
                 }
-            }
-        }
-        
+            //}
+        //}
         
         return shouldPresent == ShouldPresentResultEnum.YES
+    }
+    
+    private func getModule(taskViewController: ORKTaskViewController) -> ChopResearchStudyModule {
+        
+        let chopTaskViewController = taskViewController as! ChopRKTaskViewController
+        let moduleInfo = modules[chopTaskViewController.taskType]!
+        
+        return moduleInfo.module
     }
 }
 
