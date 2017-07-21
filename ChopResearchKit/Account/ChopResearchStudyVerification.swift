@@ -66,16 +66,12 @@ extension ChopResearchStudyVerification: ChopResearchStudyAccountLoginImplementa
     
     func addUserMessage(action: inout ChopWorkflowAction) {
         
-        let responseData = action.webRequestResponse?.data
+        let result = action.webRequestResponse?.findResponseValue(key: ChopWebRequestResponse.PID_REQUEST_RESULT)
         
-        guard let result = responseData?[ChopWebRequestResponse.PID_REQUEST_RESULT] else {
-            return
-        }
-
         var title = ""
         var message = ""
         
-        if userMessages.getUserText(webRequestResponse: result, title: &title, message: &message) {
+        if userMessages.getUserText(webRequestResponse: result!, title: &title, message: &message) {
             
             action.userMessageTitle = title
             action.userMessage = message

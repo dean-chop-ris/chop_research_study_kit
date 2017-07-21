@@ -10,6 +10,7 @@ import Foundation
 import ResearchKit
 
 typealias ModuleCompleteCallback = (ChopWorkflowAction) -> Void
+typealias WebRequestResponseRecievedCallback = (ChopWebRequestResponse) -> Void
 
 public enum ChopResearchStudyModuleTypeEnum {
     case Login
@@ -150,6 +151,13 @@ extension ChopResearchStudy : ORKTaskViewControllerDelegate {
         }
 
         return shouldPresent == ShouldPresentResultEnum.YES
+    }
+
+    func getModule(type taskType: ChopResearchStudyModuleTypeEnum) -> ChopResearchStudyModule {
+        
+        let moduleInfo = modules[taskType]!
+        
+        return moduleInfo.module
     }
     
     private func getModule(taskViewController: ORKTaskViewController) -> ChopResearchStudyModule {

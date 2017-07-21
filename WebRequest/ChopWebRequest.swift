@@ -85,25 +85,28 @@ struct ChopWebRequest {
         }
 
         let postDictionary = source.payloadParamsDictionary
-        var payload = ""
         
-        let postArray = [postDictionary]
+        if postDictionary.count > 0 {
+            var payload = ""
         
-        do {
-            guard let jsonData =  try JSONSerialization.data(
-                withJSONObject: postArray,
-                options: JSONSerialization.WritingOptions.prettyPrinted) as Data?
+            let postArray = [postDictionary]
+        
+            do {
+                guard let jsonData =  try JSONSerialization.data(
+                    withJSONObject: postArray,
+                    options: JSONSerialization.WritingOptions.prettyPrinted) as Data?
                 else {
                     print("ChopWebRequest: Error converting data to JSON")
                     return
+                }
+                payload = String(data: jsonData, encoding: String.Encoding.utf8)!
+                } catch  {
+                    print("ChopWebRequest: Error trying to convert data to JSON")
+                    return
             }
-            payload = String(data: jsonData, encoding: String.Encoding.utf8)!
-        } catch  {
-            print("ChopWebRequest: Error trying to convert data to JSON")
-            return
-        }
 
-        dictionary["data"] = payload
+            dictionary["data"] = payload
+        }
     }
 
     fileprivate var source: ChopWebRequestSource

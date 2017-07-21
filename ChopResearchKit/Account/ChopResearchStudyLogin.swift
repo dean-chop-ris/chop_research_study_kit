@@ -64,11 +64,7 @@ extension ChopResearchStudyLogin: ChopResearchStudyAccountLoginImplementation {
  
     func addUserMessage(action: inout ChopWorkflowAction) {
 
-        let responseData = action.webRequestResponse?.data
-        
-        guard let result = responseData?[ChopWebRequestResponse.PID_REQUEST_RESULT] else {
-            return
-        }
+        let result = action.webRequestResponse?.findResponseValue(key: ChopWebRequestResponse.PID_REQUEST_RESULT)
         
         if result == ChopWebRequestResponse.PV_SUCCESS {
             action.userMessageTitle = "Login successful."

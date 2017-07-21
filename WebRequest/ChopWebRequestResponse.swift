@@ -29,7 +29,7 @@ struct ChopWebRequestResponse {
                 return false
             }
             
-            if let val = data[ChopWebRequestResponse.PID_REQUEST_RESULT] {
+            if let val = self.requestResponseData.first?[ChopWebRequestResponse.PID_REQUEST_RESULT].debugDescription {
                 return val == ChopWebRequestResponse.PV_SUCCESS
             }
  
@@ -37,8 +37,6 @@ struct ChopWebRequestResponse {
         }
     }
 
-    public private(set) var data = Dictionary<String, String>()
-    
     init(httpResponse: HTTPURLResponse, data: Data) {
         
         self.statusCode = httpResponse.statusCode
@@ -48,32 +46,105 @@ struct ChopWebRequestResponse {
         print("----- HTTP RESPONSE -----------------")
         print("URL: " + (httpResponse.url?.absoluteString)!)
         print("Status Code: " + self.statusCode.description)
+
+        let headers = httpResponse.allHeaderFields
+        
+        for header in headers {
+            
+            print("Header: \(header.key)\tValue: \(header.value)")
+        }
+
         print("Body: ")
-        print(self.data)
+        print(self.requestResponseData)
         print("----- /HTTP RESPONSE ----------------")
     }
 
     init(usingSimulator simulator: ChopWebServerSimulator) {
         
         self.statusCode = simulator.statusCode
-        self.data = simulator.simulatedResponseHeaders
+        self.requestResponseData += [simulator.simulatedResponseHeaders]
     }
-    
+
     private mutating func parseJSON(data responseData: Data) {
-        do {
-            guard let jsonDictionary = try JSONSerialization.jsonObject(with: responseData, options: []) as? [String: AnyObject] else {
-                print("ChopWebRequestResponse: Error converting data to JSON")
-                return
+        if parseData_singleDictionary(data: responseData) == false {
+            
+            if parseData_arrayOfDictionaries(data: responseData) == false {
+                print("ChopWebRequestResponse: Parse response data failed")
             }
-            
-            //print("The JSON is: " + jsonDictionary.description)
-            self.data = jsonDictionary as! Dictionary<String, String>
-            
-        } catch  {
-            print("ChopWebRequestResponse: Error trying to convert data to JSON")
-            return
         }
     }
 
+    func findResponseValue(key: String) -> String {
+
+        var dictionary = self.requestResponseData.first
+        
+        return dictionary![key] as! String
+    }
+
+    
+//    private mutating func parseJSON(data responseData: Data) {
+//        do {
+//            // first try to parse as a single dictionary
+//            guard let singleDictionaryJsonResponseData = try JSONSerialization.jsonObject(with: responseData, options: []) as? [String: AnyObject] else {
+//                print("ChopWebRequestResponse: Parse single dictionary failed, trying array of dictionaries")
+//            
+//                // parse as array of dictionarries
+//                guard let arrayOfDictionarysJsonResponseData = try JSONSerialization.jsonObject(with: responseData, options: .allowFragments) as? [Dictionary<String,Any>] else {
+//                    print("ChopWebRequestResponse: Error parsing response as array of dictionaries")
+//                    return
+//                }
+//                self.data2 = arrayOfDictionarysJsonResponseData
+//            }
+//            self.data = singleDictionaryJsonResponseData as! Dictionary<String, String>
+//            
+//            //print("The JSON is: " + jsonDictionary.description)
+//            
+//        } catch  {
+//            print("ChopWebRequestResponse: Error trying to convert data to JSON")
+//            return
+//        }
+//    }
+
+    private mutating func parseData_singleDictionary(data responseData: Data) -> Bool {
+        
+        do {
+            print("ChopWebRequestResponse: Parse single dictionary")
+            guard let singleDictionaryJsonResponseData = try JSONSerialization.jsonObject(with: responseData, options: []) as? [String: AnyObject] else {
+                print("ChopWebRequestResponse: Parse single dictionary failed")
+                return false
+            }
+            self.requestResponseData += [singleDictionaryJsonResponseData as! Dictionary<String, String>]
+            
+            //print("The JSON is: " + jsonDictionary.description)
+            
+        } catch  {
+            print("ChopWebRequestResponse: Error parsing single dictionary")
+            return false
+        }
+        print("ChopWebRequestResponse: Parse single dictionary successful")
+        return true
+    }
+
+    private mutating func parseData_arrayOfDictionaries(data responseData: Data) -> Bool {
+        
+        do {
+            print("ChopWebRequestResponse: Parse array of dictionaries")
+            guard let arrayOfDictionarysJsonResponseData = try JSONSerialization.jsonObject(with: responseData, options: .allowFragments) as? [Dictionary<String,Any>] else {
+                print("ChopWebRequestResponse: Error parsing response as array of dictionaries")
+                return false
+            }
+            self.requestResponseData = arrayOfDictionarysJsonResponseData
+            
+            //print("The JSON is: " + jsonDictionary.description)
+            
+        } catch  {
+            print("ChopWebRequestResponse: Error parsing array of dictionaries")
+            return false
+        }
+        print("ChopWebRequestResponse: Parse array of dictionaries successful")
+        return true
+    }
+    
     private var statusCode: Int
+    private var requestResponseData = [Dictionary<String,Any>]()
 }

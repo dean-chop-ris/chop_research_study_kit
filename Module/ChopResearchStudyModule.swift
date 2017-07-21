@@ -20,6 +20,7 @@ protocol ChopResearchStudyModule {
     var identifier: String { get }
     var errorMessage: String { get }
     var moduleCompleteCallback: ModuleCompleteCallback? { get set }
+    var webRequestResponseRecievedCallback: WebRequestResponseRecievedCallback? { get set }
     
     mutating func setOptions(options: ChopResearchStudyModuleOptions)
     
@@ -31,6 +32,5 @@ protocol ChopResearchStudyModule {
     
     mutating func onFinish(withResult taskResult: ORKTaskResult)
 
-    //func addUserMessage(action: inout ChopWorkflowAction)
     func createWorkflowAction(from response: ChopWebRequestResponse) -> ChopWorkflowAction
 }
