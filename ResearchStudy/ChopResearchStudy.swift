@@ -80,6 +80,18 @@ class ChopResearchStudy: NSObject {
         return viewController!
     }
     
+    func processWebResponse(response: ChopWebRequestResponse) {
+
+        for moduleInfo in modules.values {
+            
+            if moduleInfo.module.canProcess(response: response) {
+                
+                moduleInfo.module.process(response: response)
+            }
+        }
+    }
+
+    
     var onModuleCompleteCallback: ModuleCompleteCallback? = nil
     
     fileprivate var modules: [ChopResearchStudyModuleTypeEnum:ModuleInformation] = [:]

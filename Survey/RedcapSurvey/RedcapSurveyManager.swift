@@ -17,7 +17,7 @@ struct RedcapSurveyManager {
 
     public private(set) var rkSurveyTask : ChopRKTask!
     
-    mutating func extractInstruments(fromResponse response: ChopWebRequestResponse) {
+    mutating func extract(fromResponse response: ChopWebRequestResponse) {
         
         //items.loadFromJSON(data: response.data)
         

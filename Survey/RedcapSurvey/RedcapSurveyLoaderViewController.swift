@@ -9,7 +9,7 @@
 import Foundation
 import UIKit
 
-class RedcapSurveyLoaderViewController: UIViewController {
+class RedcapSurveyLoaderViewController: ChopResearchStudyViewController {
     
     var requestor: ChopWebRequestSource?
 
@@ -31,6 +31,7 @@ class RedcapSurveyLoaderViewController: UIViewController {
         broker.send(request: request, onCompletion: { (response, error) in
             
                 //self.webRequestResponseRecievedCallback!(response)
+            self.study.processWebResponse(response: response)
        }
         )
     }
