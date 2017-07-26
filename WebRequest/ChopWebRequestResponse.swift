@@ -31,6 +31,7 @@ struct ChopWebRequestResponse {
         }
     }
 
+    
     public var success: Bool {
         get
         {
