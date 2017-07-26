@@ -43,6 +43,7 @@ extension ChopResearchStudyLogin: ChopResearchStudyAccountLoginImplementation {
             return
         }
         */
+        
      }
     
     func createModuleViewController(delegate: ChopResearchStudy, rkTaskToRun: ORKTask) -> UIViewController {

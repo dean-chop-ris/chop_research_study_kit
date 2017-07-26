@@ -21,11 +21,20 @@ struct ChopWebRequestResponse {
     static let PV_ACCT_CONFIRMED = "account_confirmed"
     static let PV_ACCT_NOT_CONFIRMED = "account_not_confirmed"
     static let PV_PASSWORD_INCORRECT = "password_incorrect"
-    
+
+    public private(set) var statusCode: Int
+
+    public var isValid: Bool {
+        get
+        {
+            return statusCode == 200
+        }
+    }
+
     public var success: Bool {
         get
         {
-            if statusCode != 200 {
+            if isValid == false {
                 return false
             }
             
@@ -145,6 +154,5 @@ struct ChopWebRequestResponse {
         return true
     }
     
-    private var statusCode: Int
     private var requestResponseData = [Dictionary<String,Any>]()
 }
