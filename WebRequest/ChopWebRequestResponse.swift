@@ -42,11 +42,15 @@ struct ChopWebRequestResponse {
             if let val = self.requestResponseData.first?[ChopWebRequestResponse.PID_REQUEST_RESULT].debugDescription {
                 return val == ChopWebRequestResponse.PV_SUCCESS
             }
- 
-            return false
+            return true
         }
     }
 
+    public var data: [Dictionary<String,Any>] {
+        
+        get { return self.requestResponseData }
+    }
+    
     init(httpResponse: HTTPURLResponse, data: Data) {
         
         self.statusCode = httpResponse.statusCode
@@ -123,6 +127,12 @@ struct ChopWebRequestResponse {
                 print("ChopWebRequestResponse: Parse single dictionary failed")
                 return false
             }
+            
+            if (singleDictionaryJsonResponseData is Dictionary<String, String>) == false {
+                print("ChopWebRequestResponse: Data parsed, but not single dictionary")
+                return false
+            }
+            
             self.requestResponseData += [singleDictionaryJsonResponseData as! Dictionary<String, String>]
             
             //print("The JSON is: " + jsonDictionary.description)

@@ -12,9 +12,8 @@ import UIKit
 class RedcapSurveyLoaderViewController: ChopResearchStudyViewController {
     
     var requestor: ChopWebRequestSource?
-
-    var webRequestResponseRecievedCallback: WebRequestResponseRecievedCallback? 
-
+    var client: RedcapSurveyLoaderViewControllerClient?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -30,12 +29,12 @@ class RedcapSurveyLoaderViewController: ChopResearchStudyViewController {
         
         broker.send(request: request, onCompletion: { (response, error) in
             
-                //self.webRequestResponseRecievedCallback!(response)
             self.study.processWebResponse(response: response)
+            self.dismiss(animated: true, completion: { () in self.client?.onRedcapSurveyLoaded() })
        }
         )
     }
-    
+
     override func updateViewConstraints() {
         buttonConstraints()
         labelConstraints()
@@ -136,7 +135,10 @@ class RedcapSurveyLoaderViewController: ChopResearchStudyViewController {
 }
 
 
-
+protocol RedcapSurveyLoaderViewControllerClient {
+    
+    func onRedcapSurveyLoaded()
+}
 
 
 

@@ -82,13 +82,14 @@ class ChopResearchStudy: NSObject {
     
     func processWebResponse(response: ChopWebRequestResponse) {
 
-        for moduleInfo in modules.values {
+        for key in modules.keys {
             
-            if moduleInfo.module.canProcess(response: response) {
+            if (modules[key]?.module.canProcess(response: response))! {
                 
-                moduleInfo.module.process(response: response)
+                modules[key]?.module.process(response: response)
             }
         }
+
     }
 
     
