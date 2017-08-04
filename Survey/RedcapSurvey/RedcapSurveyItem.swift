@@ -77,6 +77,7 @@ struct RedcapSurveyItem  {
 
             
         } else {
+            print("WARNING: RedcapSurveyItem.generateModuleStep(): Unkown field type: " + fieldType)
             step = ChopMultipleChoiceQuestion(withStepID: fieldName,
                                                 withWebId: fieldName,
                                                 withQuestion: fieldLabel,

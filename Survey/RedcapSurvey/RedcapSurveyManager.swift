@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UIKit
 
 
 struct RedcapSurveyManager {
@@ -31,6 +32,28 @@ struct RedcapSurveyManager {
         redcapFormName = redcapInstrumentName
     }
     
+    func createModuleViewController(delegate: ChopResearchStudy) -> UIViewController {
+        
+        if isLoaded == false {
+            let loaderViewController = RedcapSurveyLoaderViewController()
+            
+            loaderViewController.requestor = self
+            
+            return loaderViewController
+            
+        } else {
+            let taskViewController = ChopRKTaskViewController(
+                type: ChopResearchStudyModuleTypeEnum.Survey,
+                task: rkSurveyTask,
+                taskRun: nil)
+            
+            taskViewController.delegate = delegate
+            
+            return taskViewController
+        }
+    }
+    
+
     mutating func extract(fromResponse response: ChopWebRequestResponse) {
         
         items.loadFromJSON(data: response.data, forInstrumentName: self.redcapFormName)

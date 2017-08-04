@@ -8,16 +8,6 @@
 
 import Foundation
 
-
-protocol ChopWebRequestSource {
-
-    var destinationUrl: String { get }
-
-    var headerParamsDictionary: Dictionary<String, String> { get } // A dictionary of JSON keys/values
-    var payloadParamsDictionary: Dictionary<String, String> { get } // A dictionary of JSON keys/values
-    
-}
-
 struct ChopWebRequest {
     
     var destinationUrl: String
@@ -112,6 +102,15 @@ struct ChopWebRequest {
     fileprivate var source: ChopWebRequestSource
 }
 
+
+protocol ChopWebRequestSource {
+    
+    var destinationUrl: String { get }
+    
+    var headerParamsDictionary: Dictionary<String, String> { get } // A dictionary of JSON keys/values
+    var payloadParamsDictionary: Dictionary<String, String> { get } // A dictionary of JSON keys/values
+    
+}
 
 
 
