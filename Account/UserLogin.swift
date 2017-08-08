@@ -20,9 +20,9 @@ struct UserLogin {
         get { return loginInfo[UserLogin.KEY_Password]! }
     }
 
-    mutating func capture(from results: ChopRKTextQuestionResultArray) {
+    mutating func capture(from results: ChopRKResultArray) {
         
-        results.extract(into: &loginInfo)
+        results.extractTextQuestionResults(into: &loginInfo)
     }
 
     private static let KEY_Password = "ORKLoginFormItemPassword"

@@ -57,20 +57,9 @@ extension ChopMultipleChoiceImageQuestion: HasModuleStepDataToCapture {
     mutating func captureResult(fromORKTaskResult orkTaskResult: ORKTaskResult) {
         
         let orkStepResult = orkTaskResult.stepResult(forStepIdentifier: self.stepId)
-        let orkChoiceQuestionResultArray = orkStepResult?.results
-        if orkChoiceQuestionResultArray?.count == 0 {
-            // this shouldn't happen
-            return
-        }
-        let result = orkChoiceQuestionResultArray?[0]
-        let result1 = result as! ORKChoiceQuestionResult
+        let resultArray = ChopRKResultArray(with: orkStepResult?.results)
         
-        if result1.choiceAnswers?.first == nil {
-            return
-        }
-        
-        //let answer = result1.choiceAnswers?.first as! String!
-        self.answer = result1.choiceAnswers?.first as! Int
+        answer = resultArray.extractSingleChoiceQuestionResult()
     }
 }
 

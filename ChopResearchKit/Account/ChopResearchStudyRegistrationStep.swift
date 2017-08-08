@@ -61,7 +61,7 @@ extension ChopResearchStudyRegistrationStep: HasModuleStepDataToCapture {
     mutating func captureResult(fromORKTaskResult orkTaskResult: ORKTaskResult) {
         
         let orkStepResult = orkTaskResult.stepResult(forStepIdentifier: self.stepId)
-        let rkResultsArray = ChopRKTextQuestionResultArray(with: orkStepResult?.results)
+        let rkResultsArray = ChopRKResultArray(with: orkStepResult?.results)
 
         registration.capture(from: rkResultsArray)
     }

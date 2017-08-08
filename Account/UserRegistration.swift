@@ -20,9 +20,9 @@ struct UserRegistration {
         get { return registrationInfo[UserRegistration.KEY_Password]! }
     }
 
-    mutating func capture(from results: ChopRKTextQuestionResultArray) {
+    mutating func capture(from results: ChopRKResultArray) {
         
-        results.extract(into: &registrationInfo)
+        results.extractTextQuestionResults(into: &registrationInfo)
     }
     
     private static let KEY_Password = "ORKRegistrationFormItemPassword"

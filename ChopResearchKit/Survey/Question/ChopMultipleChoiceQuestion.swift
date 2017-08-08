@@ -35,8 +35,6 @@ struct ChopMultipleChoiceQuestion {
                                  answer: answerFormat)
         _webId = webId
         self._isMultipleAnswer = isMultAnswers
-        // The formatter needs to be initialized with self, but
-        // at this point self is not yet initialized
     }
 
     fileprivate var rkStep: ORKStep
@@ -53,19 +51,10 @@ extension ChopMultipleChoiceQuestion: HasModuleStepDataToCapture {
     mutating func captureResult(fromORKTaskResult orkTaskResult: ORKTaskResult) {
 
         let orkStepResult = orkTaskResult.stepResult(forStepIdentifier: rkStep.identifier)
-        let questionResult = orkStepResult?.results /* ORKChoiceQuestionResult [] */
-        let result = questionResult?[0]
-        let result1 = result as! ORKChoiceQuestionResult
+        let resultArray = ChopRKResultArray(with: orkStepResult?.results)
         
-        var answer = 0
-        guard let count = result1.choiceAnswers?.count else { return }
-        for index in 0...(count - 1) {
-            answer = result1.choiceAnswers?[index] as! Int!
-            
-            _answers += [answer]
-        }
+        _answers = resultArray.extractMultipleChoiceQuestionResults()
     }
-
 }
 
 extension ChopMultipleChoiceQuestion: ChopRKTaskStep {
