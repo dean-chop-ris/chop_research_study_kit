@@ -24,12 +24,10 @@ struct ChopTextQuestion {
         rkStep = ORKQuestionStep(identifier: stepID, title: title, answer: answerFormat)
         
         answer = ""
-        self.web_Id = webIdentifier
+        base.web_Id = webIdentifier
     }
     
     fileprivate var rkStep: ORKStep
-    fileprivate var validation: ValidationInfo = ValidationInfo()
-    fileprivate var web_Id: String = ""
     fileprivate var base = ChopRKTaskStepBase()
 }
 
@@ -57,14 +55,11 @@ extension ChopTextQuestion: ChopResearchStudyModuleStep {
 
 extension ChopTextQuestion: AbleToBeValidated {
     // MARK: : AbleToBeValidated
-    var isAnswerValid: Bool { get { return true } }
-    var errorMessage: String { get { return validation.errMsg } }
+    var errorMessage: String { get { return base.validation.errMsg } }
     var bypassValidation: Bool {
-        get { return validation.bypass_Validation }
-        set { validation.bypass_Validation = newValue }
+        get { return base.validation.bypass_Validation }
+        set { base.validation.bypass_Validation = newValue }
     }
-    
-    func isValid(givenResult result: ORKTaskResult, errorMessageToReturn: inout String) -> Bool { return true }
 }
 
 extension ChopTextQuestion: HasModuleStepDataToCapture {
@@ -87,8 +82,8 @@ extension ChopTextQuestion: HasModuleStepDataToCapture {
 extension ChopTextQuestion: GeneratesWebRequestData {
     // MARK: GeneratesWebRequestData
     public var webId: String {
-        get { return web_Id }
-        set { web_Id = newValue }
+        get { return base.web_Id }
+        set { base.web_Id = newValue }
     }
     
     func populateWebRequestPostDictionary(dictionary: inout Dictionary<String, String>) {

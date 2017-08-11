@@ -30,14 +30,13 @@ struct ChopValuePickerQuestion {
         rkStep = ORKQuestionStep(identifier: stepID,
                                  title: question,
                                  answer: answerFormat)
-        _webId = webId
+        base.web_Id = webId
     }
 
     fileprivate var choices = [ORKTextChoice]() // All the possible choices for the user to choose from
     fileprivate var rkStep: ORKStep
-    fileprivate var _webId: String
-    fileprivate var base = ChopRKTaskStepBase()
     fileprivate var answer: Int = -1 // The choice that the user actually chose
+    fileprivate var base = ChopRKTaskStepBase()
 }
 
 extension ChopValuePickerQuestion: HasModuleStepDataToCapture {
@@ -80,8 +79,8 @@ extension ChopValuePickerQuestion: ChopResearchStudyModuleStep {
 extension ChopValuePickerQuestion: GeneratesWebRequestData {
     // MARK: GeneratesWebRequestData
     public var webId: String {
-        get { return _webId }
-        set { _webId = newValue }
+        get { return base.web_Id }
+        set { base.web_Id = newValue }
     }
     
     func populateWebRequestPostDictionary(dictionary: inout Dictionary<String, String>) {

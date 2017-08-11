@@ -18,6 +18,18 @@ protocol AbleToBeValidated {
     func isValid(givenResult result: ORKTaskResult, errorMessageToReturn: inout String) -> Bool
 }
 
+extension AbleToBeValidated {
+    
+    var isAnswerValid: Bool { get { return true } }
+    var errorMessage: String { get { return "" } }
+    var bypassValidation: Bool { get { return false } set {} }
+    
+    func isValid(givenResult result: ORKTaskResult, errorMessageToReturn: inout String) -> Bool {
+        return true
+    }
+}
+
+
 struct ValidationInfo {
     var errMsg: String
     var bypass_Validation: Bool

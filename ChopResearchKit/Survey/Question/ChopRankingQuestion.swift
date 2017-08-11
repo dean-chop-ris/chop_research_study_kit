@@ -38,7 +38,6 @@ struct ChopRankingQuestion {
 
     fileprivate var orkFormStep: ORKFormStep
     fileprivate var itemsToRank = [ChopRankingItem]()
-    fileprivate var validation: ValidationInfo = ValidationInfo()
     fileprivate var base = ChopRKTaskStepBase()
 }
 
@@ -119,11 +118,11 @@ extension ChopRankingQuestion: AbleToBeValidated {
                                    errorMsg: &errMsg) }
     }
     
-    var errorMessage: String { get { return validation.errMsg } }
+    var errorMessage: String { get { return base.validation.errMsg } }
     
     var bypassValidation: Bool {
-        get { return validation.bypass_Validation }
-        set { validation.bypass_Validation = newValue }
+        get { return base.validation.bypass_Validation }
+        set { base.validation.bypass_Validation = newValue }
     }
     
     func isValid(givenResult result: ORKTaskResult, errorMessageToReturn: inout String) -> Bool

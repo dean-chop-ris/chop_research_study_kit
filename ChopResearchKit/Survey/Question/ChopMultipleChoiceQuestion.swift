@@ -33,13 +33,11 @@ struct ChopMultipleChoiceQuestion {
         rkStep = ORKQuestionStep(identifier: stepID,
                                  title: question,
                                  answer: answerFormat)
-        _webId = webId
+        base.web_Id = webId
         self._isMultipleAnswer = isMultAnswers
     }
 
     fileprivate var rkStep: ORKStep
-    fileprivate var validation: ValidationInfo = ValidationInfo()
-    fileprivate var _webId: String
     fileprivate var choices = [ORKTextChoice]() // All the possible choices for the user to choose from
     fileprivate var _answers = [Int]() // The choices that the user actually chose
     private var _isMultipleAnswer: Bool
@@ -82,21 +80,19 @@ extension ChopMultipleChoiceQuestion: ChopResearchStudyModuleStep {
 
 extension ChopMultipleChoiceQuestion: AbleToBeValidated {
     // MARK: : AbleToBeValidated
-    var isAnswerValid: Bool { get { return true } }
-    var errorMessage: String { get { return validation.errMsg } }
+
+    var errorMessage: String { get { return base.validation.errMsg } }
     var bypassValidation: Bool {
-        get { return validation.bypass_Validation }
-        set { validation.bypass_Validation = newValue }
+        get { return base.validation.bypass_Validation }
+        set { base.validation.bypass_Validation = newValue }
     }
-    
-    func isValid(givenResult result: ORKTaskResult, errorMessageToReturn: inout String) -> Bool { return true }
 }
 
 extension ChopMultipleChoiceQuestion: GeneratesWebRequestData {
     // MARK: GeneratesWebRequestData
     public var webId: String {
-        get { return _webId }
-        set { _webId = newValue }
+        get { return base.web_Id }
+        set { base.web_Id = newValue }
     }
     
     func populateWebRequestPostDictionary(dictionary: inout Dictionary<String, String>) {

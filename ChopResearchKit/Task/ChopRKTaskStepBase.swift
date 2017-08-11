@@ -9,6 +9,12 @@
 import Foundation
 
 struct ChopRKTaskStepBase {
+    // This struct serves only as a container for
+    // common attributes of survey question (struct) objects.
+    // It is a by-product of the absence of inherited attributes
+    // found in object-oriented paradigms.
     
-    var passcodeProtected = false
+    var passcodeProtected: Bool = false
+    var web_Id: String = ""
+    var validation: ValidationInfo = ValidationInfo()
 }

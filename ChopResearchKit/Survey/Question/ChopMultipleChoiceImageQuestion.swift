@@ -23,13 +23,9 @@ struct ChopMultipleChoiceImageQuestion {
             ORKImageChoiceAnswerFormat.choiceAnswerFormat(with: imageChoices)
             
         rkStep = ORKQuestionStep(identifier: stepID, title: question, answer: answerFormat)
-        
-        _webId = ""
     }
 
     fileprivate var rkStep: ORKQuestionStep
-    fileprivate var validation: ValidationInfo = ValidationInfo()
-    fileprivate var _webId: String
     fileprivate var answer: Int = -1
     fileprivate var base = ChopRKTaskStepBase()
 }
@@ -70,21 +66,18 @@ extension ChopMultipleChoiceImageQuestion: ChopResearchStudyModuleStep {
 
 extension ChopMultipleChoiceImageQuestion: AbleToBeValidated {
     // MARK: : AbleToBeValidated
-    var isAnswerValid: Bool { get { return true } }
-    var errorMessage: String { get { return validation.errMsg } }
+
     var bypassValidation: Bool {
-        get { return validation.bypass_Validation }
-        set { validation.bypass_Validation = newValue }
+        get { return base.validation.bypass_Validation }
+        set { base.validation.bypass_Validation = newValue }
     }
-    
-    func isValid(givenResult result: ORKTaskResult, errorMessageToReturn: inout String) -> Bool { return true }
 }
 
 extension ChopMultipleChoiceImageQuestion: GeneratesWebRequestData {
     // MARK: GeneratesWebRequestData
     public var webId: String {
-        get { return _webId }
-        set { _webId = newValue }
+        get { return base.web_Id }
+        set { base.web_Id = newValue }
     }
     
     func populateWebRequestPostDictionary(dictionary: inout Dictionary<String, String>) {
