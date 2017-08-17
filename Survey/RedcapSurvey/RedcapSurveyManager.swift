@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import UIKit
+import ResearchKit
 
 
 struct RedcapSurveyManager {
@@ -27,8 +27,9 @@ struct RedcapSurveyManager {
     
     public private(set) var rkSurveyTask : ChopRKTask!
 
-    init(redcapInstrumentName: String) {
+    init(token: String, redcapInstrumentName: String) {
         
+        redcapToken = token
         redcapFormName = redcapInstrumentName
     }
     
@@ -53,27 +54,39 @@ struct RedcapSurveyManager {
         }
     }
     
+    mutating func load(redcapItems: RedcapSurveyItemCollection) {
+        
+        items = redcapItems.filter(instrumentName: redcapFormName)
+        generateSurveyTask()
+    }
 
     mutating func extract(fromResponse response: ChopWebRequestResponse) {
         
         items.loadFromJSON(data: response.data, forInstrumentName: self.redcapFormName)
-        
-        
-        //////////////////////////////////////////////////////////////////////
-        // Record Id
-        //////////////////////////////////////////////////////////////////////
-        var recordId = ChopModuleDataPointCollected(
-            withDescription: "RecordId",
-            andStepId: "RecordId",
-            andWebId: "record_id")
-        
-        recordId.collectString(stringToCollect: NSUUID().uuidString)
-        
-        if moduleSteps.add(element: recordId) == false {
-            return
+        generateSurveyTask()
+    }
+
+    mutating func generateSurveyTask() {
+
+        if items.containsRecordIdField == false {
+            //////////////////////////////////////////////////////////////////////
+            // Record Id
+            //////////////////////////////////////////////////////////////////////
+            var recordId = ChopModuleDataPointCollected(
+                withDescription: "RecordId",
+                andStepId: "RecordId",
+                andWebId: "record_id")
+            
+            recordId.collectString(stringToCollect: NSUUID().uuidString)
+            
+            if moduleSteps.add(element: recordId) == false {
+                return
+            }
         }
         
-
+        //////////////////////////////////////////////////////////////////////
+        // Survey Questions (from REDCap items)
+        //////////////////////////////////////////////////////////////////////
         var currentMatrixGroupName = ""
         var currentMatrixGroup = RedcapSurveyItemCollection()
         var moduleStep: ChopResearchStudyModuleStep? = nil
@@ -82,6 +95,10 @@ struct RedcapSurveyManager {
         for item in items {
             newGroup = false
             moduleStep = nil
+            
+            if item.generatesValidModuleStep == false {
+                continue
+            }
 
             if item.matrixGroupName.isEmpty == false {
                 if currentMatrixGroupName.isEmpty == false {
@@ -106,7 +123,7 @@ struct RedcapSurveyManager {
                     
                     // create a step for the finished group
                     moduleStep = createModuleStep(redcapItems: currentMatrixGroup)
-
+                    
                     if moduleSteps.add(element: moduleStep!) == false {
                         return
                     }
@@ -114,7 +131,7 @@ struct RedcapSurveyManager {
                 }
                 
                 // item has no group name, create a step for this item
-                moduleStep = item.moduleStep
+                moduleStep = item.generateModuleStep()
             }
             
             if newGroup {
@@ -140,11 +157,37 @@ struct RedcapSurveyManager {
         if moduleSteps.add(element: completionStep) == false {
             return
         }
-
+        
         rkSurveyTask = ChopRKTask(identifier: "SurveyTask",
                                   stepsToInit: moduleSteps)
-    }
+        
+        //////////////////////////////////////////////////////////////////////
+        // Navigation Setup: Local Validation
+        //////////////////////////////////////////////////////////////////////
+        
+        for step in moduleSteps {
+            
+            if step is AbleToBeValidated {
+                
+                let validatableStep = step as! AbleToBeValidated
+                
+                if validatableStep.bypassValidation {
+                    continue
+                }
+                
+                if validatableStep.validationActive {
+                    let nextStep = moduleSteps.nextStep(fromStepId: step.stepId)
 
+                    rkSurveyTask.navigateSetSurveyStepDisplayRule(
+                        forStepIdToDisplay: (nextStep?.stepId)!,
+                        onlyIfStepIdIsValid: step.stepId)
+                }
+            }
+            
+            
+        }
+    }
+    
     func createModuleStep(redcapItems: RedcapSurveyItemCollection) -> ChopResearchStudyModuleStep {
         
         var rankingItems = [ChopRankingItem]()
@@ -165,9 +208,15 @@ struct RedcapSurveyManager {
                                      withItems: rankingItems)
     }
     
+    mutating func captureResults(withResult taskResult: ORKTaskResult) {
+        
+        moduleSteps.captureResults(withResult: taskResult)
+    }
+
     private var items = RedcapSurveyItemCollection()
     private var redcapFormName: String
     fileprivate var moduleSteps = ChopModuleStepCollection()
+    fileprivate var redcapToken: String
 }
 
 
@@ -187,14 +236,10 @@ extension RedcapSurveyManager: ChopWebRequestSource {
         get {
             var params = ChopWebRequestParameters()
             
-            params.load(key: "token", value: "6888B142F5AC0578AB6F605E549E1C44")
+            params.load(key: "token", value: redcapToken)
             params.load(key: "content", value: "metadata")
             params.load(key: "format", value: "json")
             params.load(key: "returnFormat", value: "json")
-            
-//            params.load(key: "action", value: "import")
-//            params.load(key: "type", value: "flat")
-//            params.load(key: "overwriteBehavior", value: "overwrite")
             
             return params.postDictionary
         }

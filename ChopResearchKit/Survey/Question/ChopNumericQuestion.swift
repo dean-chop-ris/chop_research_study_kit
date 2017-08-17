@@ -1,41 +1,47 @@
 //
-//  ChopTextQuestion.swift
-//  ParentStudyAlpha
+//  ChopNumericQuestion.swift
+//  LongitudinalStudy1
 //
-//  Created by Ritter, Dean on 5/12/17.
+//  Created by Ritter, Dean on 8/16/17.
 //  Copyright © 2017 Ritter, Dean. All rights reserved.
 //
 
 import Foundation
 import ResearchKit
 
-struct ChopTextQuestion {
+struct ChopNumericQuestion {
     
-    var answer: String {
+    var answer: Int {
         
         return _answer
     }
-    
-    init(withStepID stepID: String,
+
+    init(withStepID stepIdentifier: String,
          withWebId webIdentifier: String,
-         withTitle title: String) {
-        
-        let answerFormat = ORKTextAnswerFormat()
-        
-        answerFormat.multipleLines = true
-        
-        rkStep = ORKQuestionStep(identifier: stepID, title: title, answer: answerFormat)
+         withTitle questionTitle: String,
+         min: Int = Int.min,
+         max: Int = Int.max) {
         
         base.web_Id = webIdentifier
+        
+        let answerFormat = ORKNumericAnswerFormat(style: ORKNumericAnswerStyle.integer)
+        
+        answerFormat.minimum = min as NSNumber
+        answerFormat.maximum = max as NSNumber
+        
+        rkStep = ORKQuestionStep(identifier: stepIdentifier,
+                                 title: questionTitle,
+                                 answer: answerFormat)
     }
-    
-    fileprivate var _answer = ""
-    fileprivate var rkStep: ORKStep
+
+
+    fileprivate var _answer = 0
+    fileprivate var rkStep: ORKQuestionStep
     fileprivate var base = ChopRKTaskStepBase()
 }
 
 
-extension ChopTextQuestion: ChopRKTaskStep {
+extension ChopNumericQuestion: ChopRKTaskStep {
     // MARK: ChopRKTaskStep
     var passcodeProtected: Bool {
         get {
@@ -45,18 +51,18 @@ extension ChopTextQuestion: ChopRKTaskStep {
             self.base.passcodeProtected = newValue
         }
     }
-
+    
     func populateRKStepArray(stepArray: inout [ORKStep]) {
         stepArray += [rkStep]
     }
 }
 
-extension ChopTextQuestion: ChopResearchStudyModuleStep {
+extension ChopNumericQuestion: ChopResearchStudyModuleStep {
     // MARK: ChopResearchStudyModuleStep
     var stepId: String { get { return rkStep.identifier } }
 }
 
-extension ChopTextQuestion: AbleToBeValidated {
+extension ChopNumericQuestion: AbleToBeValidated {
     // MARK: : AbleToBeValidated
     var errorMessage: String { get { return base.validation.errMsg } }
     var bypassValidation: Bool {
@@ -65,24 +71,31 @@ extension ChopTextQuestion: AbleToBeValidated {
     }
 }
 
-extension ChopTextQuestion: HasModuleStepDataToCapture {
+extension ChopNumericQuestion: HasModuleStepDataToCapture {
     // MARK: HasModuleStepDataToCapture
     
     mutating func captureResult(fromORKTaskResult orkTaskResult: ORKTaskResult) {
+
+        captureResult(fromORKTaskResult: orkTaskResult, andPutInto: &_answer)
+    }
+    
+    fileprivate func captureResult(fromORKTaskResult orkTaskResult: ORKTaskResult, andPutInto destNumber: inout Int ) {
         
         let orkStepResult = orkTaskResult.stepResult(forStepIdentifier: self.stepId)
         let orkTextQuestionResultArray = orkStepResult?.results
         if (orkTextQuestionResultArray != nil) {
             
-            let result1 = orkTextQuestionResultArray?[0]
-            let result1Str = result1 as! ORKTextQuestionResult
-            _answer = result1Str.textAnswer! as String
+            let firstResult = orkTextQuestionResultArray?[0]
+            let rkNumberResult = firstResult as! ORKNumericQuestionResult
+            let numericAnswer = rkNumberResult.numericAnswer as! Int
+            
+            destNumber = numericAnswer
         }
     }
     
 }
 
-extension ChopTextQuestion: GeneratesWebRequestData {
+extension ChopNumericQuestion: GeneratesWebRequestData {
     // MARK: GeneratesWebRequestData
     public var webId: String {
         get { return base.web_Id }
@@ -94,7 +107,6 @@ extension ChopTextQuestion: GeneratesWebRequestData {
         if webId.isEmpty {
             return
         }
-        dictionary[webId] = answer
+        dictionary[webId] = "\(answer)"
     }
 }
-

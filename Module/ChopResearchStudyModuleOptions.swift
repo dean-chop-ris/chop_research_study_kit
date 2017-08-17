@@ -71,7 +71,15 @@ struct ChopResearchStudyModuleOptions {
         }
     }
 
-    private mutating func addOption(optionType: String, optionValue: String) {
+    func option(optionType: String) -> String {
+        
+        if let val = optionsDictionary[optionType] {
+            return val
+        }
+        return ""
+    }
+
+    mutating func addOption(optionType: String, optionValue: String) {
         optionsDictionary[optionType] = optionValue
     }
     

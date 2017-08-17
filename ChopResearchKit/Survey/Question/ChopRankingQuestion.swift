@@ -120,6 +120,8 @@ extension ChopRankingQuestion: AbleToBeValidated {
     
     var errorMessage: String { get { return base.validation.errMsg } }
     
+    var validationActive: Bool { return true }
+    
     var bypassValidation: Bool {
         get { return base.validation.bypass_Validation }
         set { base.validation.bypass_Validation = newValue }

@@ -9,6 +9,7 @@
 import Foundation
 import ResearchKit
 
+typealias LoadRequestResponse = (ChopWebRequestResponse, NSError?) -> Void
 typealias ModuleCompleteCallback = (ChopWorkflowAction) -> Void
 typealias WebRequestResponseRecievedCallback = (ChopWebRequestResponse) -> Void
 
@@ -59,23 +60,48 @@ class ChopResearchStudy: NSObject {
         modules[moduleType] = ModuleInformation(module: moduleToAdd)
     }
     
+    var isLoaded: Bool {
+        
+        return false
+    }
+
+    func load(options: Int, onCompletion: @escaping LoadRequestResponse) {
+        
+    }
+
+    func loadRedcapItems(redcapItemsProvider: RedcapItemsProvider) {
+        
+        for key in modules.keys {
+            if (modules[key]?.module.loadsRedcapItems)! {
+                modules[key]?.module.loadRedcapItems(redcapItems: redcapItemsProvider.redcapItems)
+            }
+        }
+    }
+
     func createModuleViewController(type taskType: ChopResearchStudyModuleTypeEnum) -> UIViewController {
         
         return createModuleViewController(type: taskType, options: nil)
     }
 
-    func createModuleViewController(type taskType: ChopResearchStudyModuleTypeEnum, options: ChopResearchStudyModuleOptions?) -> UIViewController {
-        
-        var module = modules[taskType]?.module
+    func setModuleOptions(type taskType: ChopResearchStudyModuleTypeEnum,
+                          options: ChopResearchStudyModuleOptions?) {
         
         if options != nil {
+            var module = modules[taskType]?.module
+
             module?.setOptions(options: options!)
             modules[taskType]?.module = module!
         }
+    }
+
+    func createModuleViewController(type moduleType: ChopResearchStudyModuleTypeEnum,
+                                    options: ChopResearchStudyModuleOptions?) -> UIViewController {
         
-        let viewController = module?.createModuleViewController(delegate: self)
+        setModuleOptions(type: moduleType, options: options)
         
-        modules[taskType]?.viewController = viewController
+        let viewController = modules[moduleType]?.module.createModuleViewController(delegate: self)
+        
+        modules[moduleType]?.viewController = viewController
         
         return viewController!
     }
@@ -230,3 +256,9 @@ struct ModuleInformation {
     var module: ChopResearchStudyModule
     var viewController: UIViewController?
 }
+
+
+protocol RedcapItemsProvider {
+    var redcapItems: RedcapSurveyItemCollection { get }
+}
+

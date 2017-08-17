@@ -35,6 +35,9 @@ protocol ChopResearchStudyModule {
     
     func canProcess(response: ChopWebRequestResponse) -> Bool
     mutating func process(response: ChopWebRequestResponse)
+    
+    var loadsRedcapItems: Bool { get }
+    mutating func loadRedcapItems(redcapItems: RedcapSurveyItemCollection)
 }
 
 
@@ -48,9 +51,7 @@ extension ChopResearchStudyModule {
         set {}
     }
     
-    mutating func setOptions(options: ChopResearchStudyModuleOptions) {
-        
-    }
+    mutating func setOptions(options: ChopResearchStudyModuleOptions) { }
     
     func createModuleViewController(delegate: ChopResearchStudy) -> UIViewController {
         return UIViewController()
@@ -61,9 +62,7 @@ extension ChopResearchStudyModule {
         return ShouldPresentResultEnum.YES
     }
     
-    mutating func onFinish(withResult taskResult: ORKTaskResult) {
-        
-    }
+    mutating func onFinish(withResult taskResult: ORKTaskResult) { }
     
     func createWorkflowAction(from response: ChopWebRequestResponse) -> ChopWorkflowAction {
         return ChopWorkflowAction()
@@ -73,7 +72,8 @@ extension ChopResearchStudyModule {
          return false
     }
     
-    mutating func process(response: ChopWebRequestResponse) {
-        
-    }
+    mutating func process(response: ChopWebRequestResponse) { }
+    
+    var loadsRedcapItems: Bool { return false }
+    mutating func loadRedcapItems(redcapItems: RedcapSurveyItemCollection) {}
 }

@@ -19,13 +19,39 @@ struct RedcapSurveyItemCollection {
         return items[0]
     }
     
-    mutating func loadFromJSON(data: [Dictionary<String, Any>], forInstrumentName instrumentName: String) {
+    var containsRecordIdField: Bool {
+        
+        for item in items {
+            
+            if item.isRecordIdField {
+                return true
+            }
+        }
+        return false
+    }
+    
+    func filter(instrumentName: String) -> RedcapSurveyItemCollection {
+        
+        var newCollection = RedcapSurveyItemCollection()
+        
+        for item in items {
+            
+            if (item.formName == instrumentName) {
+                newCollection.add(item: item)
+            }
+        }
+        return newCollection
+    }
+    
+    mutating func loadFromJSON(data: [Dictionary<String, Any>], forInstrumentName instrumentName: String = "") {
+        
+        let loadAll = instrumentName.isEmpty
         
         for item in data {
             
             let surveyItem = RedcapSurveyItem(data: item)
             
-            if surveyItem.formName == instrumentName {
+            if loadAll || (surveyItem.formName == instrumentName) {
                 items += [surveyItem]
             }
         }

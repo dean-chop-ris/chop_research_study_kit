@@ -23,6 +23,28 @@ struct RedcapImportDataFormatter {
         return formatter.string(from: dateToFormat)
     }
 
+    func formatTelephoneNumberForSubmission(phoneNumberToFormat phoneNum: String) -> String {
+        
+        if phoneNum.length != 10 { return phoneNum }
+        
+        // Area Code
+        var index = phoneNum.index(phoneNum.startIndex, offsetBy: 3)
+        let areaCode = phoneNum.substring(to: index)
+
+        // Exchange
+        let start = phoneNum.index(phoneNum.startIndex, offsetBy: 3)
+        let end = phoneNum.index(phoneNum.endIndex, offsetBy: -4)
+        let range = start..<end
+        let exchange = phoneNum.substring(with: range)
+        
+        // Number
+        index = phoneNum.index(phoneNum.startIndex, offsetBy: 6)
+        let number = phoneNum.substring(from: index)
+
+
+        return "(\(areaCode)) \(exchange)-\(number)"
+    }
+
     fileprivate var client: GeneratesWebRequestData
 }
 

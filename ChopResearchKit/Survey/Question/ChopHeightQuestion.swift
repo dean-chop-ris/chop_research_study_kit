@@ -1,17 +1,17 @@
 //
-//  ChopTextQuestion.swift
-//  ParentStudyAlpha
+//  ChopHeightQuestion.swift
+//  LongitudinalStudy1
 //
-//  Created by Ritter, Dean on 5/12/17.
+//  Created by Ritter, Dean on 8/16/17.
 //  Copyright © 2017 Ritter, Dean. All rights reserved.
 //
 
 import Foundation
 import ResearchKit
 
-struct ChopTextQuestion {
+struct ChopHeightQuestion {
     
-    var answer: String {
+    var answer: Int {
         
         return _answer
     }
@@ -20,22 +20,19 @@ struct ChopTextQuestion {
          withWebId webIdentifier: String,
          withTitle title: String) {
         
-        let answerFormat = ORKTextAnswerFormat()
-        
-        answerFormat.multipleLines = true
+        let answerFormat = ORKHeightAnswerFormat(measurementSystem: ORKMeasurementSystem.USC)
         
         rkStep = ORKQuestionStep(identifier: stepID, title: title, answer: answerFormat)
         
         base.web_Id = webIdentifier
     }
     
-    fileprivate var _answer = ""
+    fileprivate var _answer = 0
     fileprivate var rkStep: ORKStep
     fileprivate var base = ChopRKTaskStepBase()
 }
 
-
-extension ChopTextQuestion: ChopRKTaskStep {
+extension ChopHeightQuestion: ChopRKTaskStep {
     // MARK: ChopRKTaskStep
     var passcodeProtected: Bool {
         get {
@@ -45,18 +42,18 @@ extension ChopTextQuestion: ChopRKTaskStep {
             self.base.passcodeProtected = newValue
         }
     }
-
+    
     func populateRKStepArray(stepArray: inout [ORKStep]) {
         stepArray += [rkStep]
     }
 }
 
-extension ChopTextQuestion: ChopResearchStudyModuleStep {
+extension ChopHeightQuestion: ChopResearchStudyModuleStep {
     // MARK: ChopResearchStudyModuleStep
     var stepId: String { get { return rkStep.identifier } }
 }
 
-extension ChopTextQuestion: AbleToBeValidated {
+extension ChopHeightQuestion: AbleToBeValidated {
     // MARK: : AbleToBeValidated
     var errorMessage: String { get { return base.validation.errMsg } }
     var bypassValidation: Bool {
@@ -65,7 +62,7 @@ extension ChopTextQuestion: AbleToBeValidated {
     }
 }
 
-extension ChopTextQuestion: HasModuleStepDataToCapture {
+extension ChopHeightQuestion: HasModuleStepDataToCapture {
     // MARK: HasModuleStepDataToCapture
     
     mutating func captureResult(fromORKTaskResult orkTaskResult: ORKTaskResult) {
@@ -74,15 +71,15 @@ extension ChopTextQuestion: HasModuleStepDataToCapture {
         let orkTextQuestionResultArray = orkStepResult?.results
         if (orkTextQuestionResultArray != nil) {
             
-            let result1 = orkTextQuestionResultArray?[0]
-            let result1Str = result1 as! ORKTextQuestionResult
-            _answer = result1Str.textAnswer! as String
+            let firstResult = orkTextQuestionResultArray?[0]
+            let rkNumericResult = firstResult as! ORKNumericQuestionResult
+            _answer = rkNumericResult.numericAnswer as! Int
         }
     }
     
 }
 
-extension ChopTextQuestion: GeneratesWebRequestData {
+extension ChopHeightQuestion: GeneratesWebRequestData {
     // MARK: GeneratesWebRequestData
     public var webId: String {
         get { return base.web_Id }
@@ -94,7 +91,7 @@ extension ChopTextQuestion: GeneratesWebRequestData {
         if webId.isEmpty {
             return
         }
-        dictionary[webId] = answer
+        
+        dictionary[webId] = "\(_answer)"
     }
 }
-

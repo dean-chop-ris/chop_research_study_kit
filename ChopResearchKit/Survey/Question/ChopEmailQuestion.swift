@@ -1,15 +1,15 @@
 //
-//  ChopTextQuestion.swift
-//  ParentStudyAlpha
+//  ChopEmailQuestion.swift
+//  LongitudinalStudy1
 //
-//  Created by Ritter, Dean on 5/12/17.
+//  Created by Ritter, Dean on 8/16/17.
 //  Copyright © 2017 Ritter, Dean. All rights reserved.
 //
 
 import Foundation
 import ResearchKit
 
-struct ChopTextQuestion {
+struct ChopEmailQuestion {
     
     var answer: String {
         
@@ -20,9 +20,7 @@ struct ChopTextQuestion {
          withWebId webIdentifier: String,
          withTitle title: String) {
         
-        let answerFormat = ORKTextAnswerFormat()
-        
-        answerFormat.multipleLines = true
+        let answerFormat = ORKEmailAnswerFormat()
         
         rkStep = ORKQuestionStep(identifier: stepID, title: title, answer: answerFormat)
         
@@ -34,8 +32,7 @@ struct ChopTextQuestion {
     fileprivate var base = ChopRKTaskStepBase()
 }
 
-
-extension ChopTextQuestion: ChopRKTaskStep {
+extension ChopEmailQuestion: ChopRKTaskStep {
     // MARK: ChopRKTaskStep
     var passcodeProtected: Bool {
         get {
@@ -45,18 +42,18 @@ extension ChopTextQuestion: ChopRKTaskStep {
             self.base.passcodeProtected = newValue
         }
     }
-
+    
     func populateRKStepArray(stepArray: inout [ORKStep]) {
         stepArray += [rkStep]
     }
 }
 
-extension ChopTextQuestion: ChopResearchStudyModuleStep {
+extension ChopEmailQuestion: ChopResearchStudyModuleStep {
     // MARK: ChopResearchStudyModuleStep
     var stepId: String { get { return rkStep.identifier } }
 }
 
-extension ChopTextQuestion: AbleToBeValidated {
+extension ChopEmailQuestion: AbleToBeValidated {
     // MARK: : AbleToBeValidated
     var errorMessage: String { get { return base.validation.errMsg } }
     var bypassValidation: Bool {
@@ -65,7 +62,7 @@ extension ChopTextQuestion: AbleToBeValidated {
     }
 }
 
-extension ChopTextQuestion: HasModuleStepDataToCapture {
+extension ChopEmailQuestion: HasModuleStepDataToCapture {
     // MARK: HasModuleStepDataToCapture
     
     mutating func captureResult(fromORKTaskResult orkTaskResult: ORKTaskResult) {
@@ -74,15 +71,16 @@ extension ChopTextQuestion: HasModuleStepDataToCapture {
         let orkTextQuestionResultArray = orkStepResult?.results
         if (orkTextQuestionResultArray != nil) {
             
-            let result1 = orkTextQuestionResultArray?[0]
-            let result1Str = result1 as! ORKTextQuestionResult
-            _answer = result1Str.textAnswer! as String
+            let firstResult = orkTextQuestionResultArray?[0]
+            let rkTextResult = firstResult as! ORKTextQuestionResult
+            
+            _answer = rkTextResult.textAnswer! as String
         }
     }
     
 }
 
-extension ChopTextQuestion: GeneratesWebRequestData {
+extension ChopEmailQuestion: GeneratesWebRequestData {
     // MARK: GeneratesWebRequestData
     public var webId: String {
         get { return base.web_Id }
@@ -97,4 +95,3 @@ extension ChopTextQuestion: GeneratesWebRequestData {
         dictionary[webId] = answer
     }
 }
-

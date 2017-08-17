@@ -11,7 +11,7 @@
 
 import Foundation
 
-typealias ServiceResponse = (ChopWebRequestResponse, NSError?) -> Void
+typealias WebRequestResponse = (ChopWebRequestResponse, NSError?) -> Void
 
 struct ChopWebRequestBroker {
 
@@ -27,7 +27,7 @@ struct ChopWebRequestBroker {
         session = URLSession(configuration: URLSessionConfiguration.default)
     }
 
-    func send(request: ChopWebRequest, onCompletion: @escaping ServiceResponse) {
+    func send(request: ChopWebRequest, onCompletion: @escaping WebRequestResponse) {
         
         let urlRequest = request.urlRequest
         

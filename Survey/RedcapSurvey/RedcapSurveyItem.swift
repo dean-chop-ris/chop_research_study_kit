@@ -13,11 +13,11 @@ struct RedcapSurveyItem  {
     var fieldAnnotation: String { get { return attributeAsString(key: "field_annotation") } }
     var fieldLabel: String { get { return attributeAsString(key: "field_label") } }
     var fieldName: String { get { return attributeAsString(key: "field_name") } }
-    var textValidationMax: String { get { return attributeAsString(key: "text_validation_max") } }
     var matrixRanking: String { get { return attributeAsString(key: "matrix_ranking") } }
     var identifier: String { get { return attributeAsString(key: "identifier") } }
     var selectChoicesOrCalculations: String { get { return attributeAsString(key: "select_choices_or_calculations") } }
-    var textValidationMin: String { get { return attributeAsString(key: "text_validation_min") } }
+    var textValidationMax: Int { get { return attributeAsInt(key: "text_validation_max") } }
+    var textValidationMin: Int { get { return attributeAsInt(key: "text_validation_min") } }
     var fieldType: String { get { return attributeAsString(key: "field_type") } }
     var fieldNote: String { get { return attributeAsString(key: "field_note") } }
     var branchingLogic: String { get { return attributeAsString(key: "branching_logic") }    }
@@ -28,30 +28,90 @@ struct RedcapSurveyItem  {
     var requiredField: String { get { return attributeAsString(key: "required_field") }    }
     var questionNumber: String { get { return attributeAsString(key: "question_number") }    }
     var matrixGroupName: String { get { return attributeAsString(key: "matrix_group_name") } }
-    
-    var moduleStep: ChopResearchStudyModuleStep {
+ 
+    var generatesValidModuleStep: Bool {
         
-        get {
-            return generateModuleStep()
-        }
+        return fieldType != "file" && // Upload a file
+               fieldType != "calc" && // Calculation field
+               fieldType != "slider" // To Be Developed
+    }
+
+    var hasNumericMax: Bool {
+        return textValidationMax != Int.min
+    }
+
+    var hasNumericMin: Bool {
+        return textValidationMin != Int.min
+    }
+
+    var isRecordIdField: Bool {
+        // TODO: make this "includes"
+        return fieldAnnotation == "chopnote_record_id"
+    }
+
+    var isDateField: Bool {
+        // TODO: make this "includes"
+        return textValidationTypeOrShowSliderNumber == "date_ymd"
+    }
+
+    var isEmailField: Bool {
+        // TODO: make this "includes"
+        return textValidationTypeOrShowSliderNumber == "email"
+    }
+
+    var isTelephoneNumberField: Bool {
+        // TODO: make this "includes"
+        return textValidationTypeOrShowSliderNumber == "phone"
+    }
+
+    var isIntegerField: Bool {
+        // TODO: make this "includes"
+        return textValidationTypeOrShowSliderNumber == "integer"
     }
     
-
     init(data: Dictionary<String, Any>) {
         
         self.coreAttributes = data
     }
-    
-    private func attributeAsString(key: String) -> String {
-    
-        return coreAttributes[key] as! String
-    }
 
-    private func generateModuleStep() -> ChopResearchStudyModuleStep {
+    func generateModuleStep(options: RedcapSurveyItemGenerationOptions? = nil) -> ChopResearchStudyModuleStep {
 
         var step: ChopResearchStudyModuleStep
         
-        if fieldType == "checkbox" {
+        if isRecordIdField {
+            
+            var recordId = ChopModuleDataPointCollected(
+                withDescription: fieldName,
+                andStepId: fieldName,
+                andWebId: fieldName)
+            
+            recordId.collectString(stringToCollect: NSUUID().uuidString)
+            step = recordId
+
+        } else if isDateField {
+            
+            step = ChopDateQuestion(withStepID: fieldName, withWebId: fieldName, withTitle: fieldLabel)
+            
+        } else if isEmailField {
+            
+            step = ChopEmailQuestion(withStepID: fieldName, withWebId: fieldName, withTitle: fieldLabel)
+
+        } else if isTelephoneNumberField {
+            
+            step = ChopPhoneNumberQuestion(withStepID: fieldName, withWebId: fieldName, withTitle: fieldLabel)
+            
+        } else if isIntegerField {
+            
+            let numericStep = ChopNumericQuestion(
+                withStepID: fieldName,
+                withWebId: fieldName,
+                withTitle: fieldLabel,
+                min: hasNumericMin ? textValidationMin : Int.min,
+                max: hasNumericMax ? textValidationMax : Int.max)
+            
+            step = numericStep
+
+        } else if fieldType == "checkbox" {
             
             let answers = parseAnswers()
             
@@ -75,9 +135,31 @@ struct RedcapSurveyItem  {
                                        withWebId: fieldName,
                                        withTitle: fieldLabel)
 
+        } else if fieldType == "notes" {
             
+            step = ChopTextQuestion(withStepID: fieldName,
+                                    withWebId: fieldName,
+                                    withTitle: fieldLabel)
+
+        } else if fieldType == "dropdown" {
+            
+            let answers = parseAnswers()
+
+            step = ChopValuePickerQuestion(withStepID: fieldName,
+                                           withWebId: fieldName,
+                                           withQuestion: fieldLabel,
+                                           withAnswers: answers)
+
+        } else if fieldType == "yesno" {
+            
+            let answers = ["Yes", "No"]
+            
+            step = ChopValuePickerQuestion(withStepID: fieldName,
+                                           withWebId: fieldName,
+                                           withQuestion: fieldLabel,
+                                           withAnswers: answers)
         } else {
-            print("WARNING: RedcapSurveyItem.generateModuleStep(): Unkown field type: " + fieldType)
+            print("WARNING: RedcapSurveyItem.generateModuleStep(): Unknown field type: " + fieldType)
             step = ChopMultipleChoiceQuestion(withStepID: fieldName,
                                                 withWebId: fieldName,
                                                 withQuestion: fieldLabel,
@@ -99,9 +181,24 @@ struct RedcapSurveyItem  {
         }
         return answersArray
     }
-    
-    private var coreAttributes: Dictionary<String, Any>
+
+    private func attributeAsString(key: String) -> String {
         
+        return coreAttributes[key] as! String
+    }
+
+    private func attributeAsInt(key: String) -> Int {
+        
+        let attrAsStr = coreAttributes[key] as! String
+        
+        if attrAsStr.isEmpty {
+            return Int.min
+        }
+        
+        return Int(attrAsStr)!
+    }
+
+    private var coreAttributes: Dictionary<String, Any>
 }
 
 /*
