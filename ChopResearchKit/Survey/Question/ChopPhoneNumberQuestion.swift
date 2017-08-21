@@ -147,8 +147,17 @@ extension ChopPhoneNumberQuestion: GeneratesWebRequestData {
 
 extension String {
     
+    var isNotEmpty: Bool {
+        return self.isEmpty == false
+    }
+    
     var length : Int {
         return self.characters.count
+    }
+    
+    func trim() -> String
+    {
+        return self.trimmingCharacters(in: NSCharacterSet.whitespaces)
     }
     
     func digitsOnly() -> String{

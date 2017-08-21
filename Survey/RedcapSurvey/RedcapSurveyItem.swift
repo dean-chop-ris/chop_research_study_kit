@@ -32,8 +32,7 @@ struct RedcapSurveyItem  {
     var generatesValidModuleStep: Bool {
         
         return fieldType != "file" && // Upload a file
-               fieldType != "calc" && // Calculation field
-               fieldType != "slider" // To Be Developed
+               fieldType != "calc"    // Calculation field
     }
 
     var hasNumericMax: Bool {
@@ -113,7 +112,7 @@ struct RedcapSurveyItem  {
 
         } else if fieldType == "checkbox" {
             
-            let answers = parseAnswers()
+            let answers = parseSelectChoiceDescriptions()
             
             step = ChopMultipleChoiceQuestion(withStepID: fieldName,
                                                 withWebId: fieldName,
@@ -122,7 +121,7 @@ struct RedcapSurveyItem  {
                                                 withAnswers: answers)
         } else if fieldType == "radio" {
             
-            let answers = parseAnswers()
+            let answers = parseSelectChoiceDescriptions()
             
             step = ChopMultipleChoiceQuestion(withStepID: fieldName,
                                                 withWebId: fieldName,
@@ -143,7 +142,7 @@ struct RedcapSurveyItem  {
 
         } else if fieldType == "dropdown" {
             
-            let answers = parseAnswers()
+            let answers = parseSelectChoiceDescriptions()
 
             step = ChopValuePickerQuestion(withStepID: fieldName,
                                            withWebId: fieldName,
@@ -158,6 +157,19 @@ struct RedcapSurveyItem  {
                                            withWebId: fieldName,
                                            withQuestion: fieldLabel,
                                            withAnswers: answers)
+        } else if fieldType == "slider" {
+            
+            let selectChoices = parseSelectChoices()
+            
+            step = ChopSliderQuestion(
+                withStepID: fieldName,
+                withWebId: fieldName,
+                withTitle: fieldLabel,
+                isVertical: customAlignment.contains("V"),
+                min: 0,
+                minValueDescription: (selectChoices.first?.description)!,
+                max: 100,
+                maxValueDescription: (selectChoices.last?.description)!)
         } else {
             print("WARNING: RedcapSurveyItem.generateModuleStep(): Unknown field type: " + fieldType)
             step = ChopMultipleChoiceQuestion(withStepID: fieldName,
@@ -169,17 +181,48 @@ struct RedcapSurveyItem  {
         return step
     }
     
-    private func parseAnswers() -> [String] {
-        var answersArray = [String]()
+    private func parseSelectChoiceDescriptions() -> [String] {
+//        var answersArray = [String]()
+//        let choicesArray = selectChoicesOrCalculations.components(separatedBy: "|")
+//        
+//        for choiceStr in choicesArray {
+//            
+//            let choiceElementsArray = choiceStr.components(separatedBy: ",")
+//            
+//            answersArray += [choiceElementsArray[1]]
+//        }
+//        return answersArray
+        var choiceDescriptions = [String]()
+        let choices = parseSelectChoices()
+        
+        for choice in choices {
+            choiceDescriptions += [choice.description]
+        }
+        return choiceDescriptions
+    }
+ 
+    private func parseSelectChoices() -> [RedcapItemSelectChoice] {
+        
+        var selectChoices = [RedcapItemSelectChoice]()
         let choicesArray = selectChoicesOrCalculations.components(separatedBy: "|")
         
         for choiceStr in choicesArray {
             
-            let choiceElementsArray = choiceStr.components(separatedBy: ",")
+            var selectChoice = RedcapItemSelectChoice()
             
-            answersArray += [choiceElementsArray[1]]
+            if choiceStr.contains(",") {
+                selectChoice.hasValue = true
+                
+                let choiceElementsArray = choiceStr.components(separatedBy: ",")
+                selectChoice.value = Int(choiceElementsArray[0].trim())!
+                selectChoice.description = choiceElementsArray[1].trim()
+            } else {
+                selectChoice.description = choiceStr
+            }
+            
+            selectChoices += [selectChoice]
         }
-        return answersArray
+        return selectChoices
     }
 
     private func attributeAsString(key: String) -> String {
@@ -199,6 +242,13 @@ struct RedcapSurveyItem  {
     }
 
     private var coreAttributes: Dictionary<String, Any>
+}
+
+struct RedcapItemSelectChoice {
+    
+    var hasValue = false
+    var value = 0
+    var description = ""
 }
 
 /*
