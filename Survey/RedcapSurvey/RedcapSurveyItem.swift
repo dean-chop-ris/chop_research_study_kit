@@ -158,8 +158,8 @@ struct RedcapSurveyItem  {
                                            withQuestion: fieldLabel,
                                            withAnswers: answers)
         } else if fieldType == "slider" {
-            
-            let selectChoices = parseSelectChoices()
+            let parser = RedcapSelectChoiceParser()
+            let selectChoices = parser.parseSelectChoices(choicesAsStr: selectChoicesOrCalculations)
             
             step = ChopSliderQuestion(
                 withStepID: fieldName,
@@ -193,7 +193,8 @@ struct RedcapSurveyItem  {
 //        }
 //        return answersArray
         var choiceDescriptions = [String]()
-        let choices = parseSelectChoices()
+        let parser = RedcapSelectChoiceParser()
+        let choices = parser.parseSelectChoices(choicesAsStr: selectChoicesOrCalculations)
         
         for choice in choices {
             choiceDescriptions += [choice.description]
@@ -201,29 +202,29 @@ struct RedcapSurveyItem  {
         return choiceDescriptions
     }
  
-    private func parseSelectChoices() -> [RedcapItemSelectChoice] {
-        
-        var selectChoices = [RedcapItemSelectChoice]()
-        let choicesArray = selectChoicesOrCalculations.components(separatedBy: "|")
-        
-        for choiceStr in choicesArray {
-            
-            var selectChoice = RedcapItemSelectChoice()
-            
-            if choiceStr.contains(",") {
-                selectChoice.hasValue = true
-                
-                let choiceElementsArray = choiceStr.components(separatedBy: ",")
-                selectChoice.value = Int(choiceElementsArray[0].trim())!
-                selectChoice.description = choiceElementsArray[1].trim()
-            } else {
-                selectChoice.description = choiceStr
-            }
-            
-            selectChoices += [selectChoice]
-        }
-        return selectChoices
-    }
+//    private func parseSelectChoices() -> [ChopItemSelectChoice] {
+//        
+//        var selectChoices = [ChopItemSelectChoice]()
+//        let choicesArray = selectChoicesOrCalculations.components(separatedBy: "|")
+//        
+//        for choiceStr in choicesArray {
+//            
+//            var selectChoice = ChopItemSelectChoice()
+//            
+//            if choiceStr.contains(",") {
+//                selectChoice.hasValue = true
+//                
+//                let choiceElementsArray = choiceStr.components(separatedBy: ",")
+//                selectChoice.value = Int(choiceElementsArray[0].trim())!
+//                selectChoice.description = choiceElementsArray[1].trim()
+//            } else {
+//                selectChoice.description = choiceStr
+//            }
+//            
+//            selectChoices += [selectChoice]
+//        }
+//        return selectChoices
+//    }
 
     private func attributeAsString(key: String) -> String {
         
@@ -242,13 +243,6 @@ struct RedcapSurveyItem  {
     }
 
     private var coreAttributes: Dictionary<String, Any>
-}
-
-struct RedcapItemSelectChoice {
-    
-    var hasValue = false
-    var value = 0
-    var description = ""
 }
 
 /*
@@ -566,6 +560,7 @@ struct RedcapItemSelectChoice {
  "question_number":,
  "matrix_group_name":app_concern_v3
  ],
+ 
  [
  "field_annotation":,
  "field_label":Knowing how to use the app,
@@ -592,6 +587,7 @@ struct RedcapItemSelectChoice {
  "question_number":,
  "matrix_group_name":app_concern_v3
  ],
+ 
  [
  "field_annotation":,
  "field_label":8   . How concerned are you about the security and privacy of your child's health information collected on a mobile device through a mobile app?,

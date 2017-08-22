@@ -16,7 +16,6 @@ struct ChopRankingQuestion {
          withItems items_To_Rank: [ChopRankingItem]) {
         
         var formItem: ORKFormItem = ORKFormItem()
-        var index = 0
         var formItems = [ORKFormItem]()
         
         for rankingItem in items_To_Rank {
@@ -26,8 +25,6 @@ struct ChopRankingQuestion {
             formItem.placeholder = "Tap to enter rank"
             
             formItems += [formItem]
-            
-            index += 1
         }
         
         orkFormStep = ORKFormStep(identifier: stepID, title: "", text: question)

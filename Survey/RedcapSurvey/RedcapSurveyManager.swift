@@ -187,14 +187,94 @@ struct RedcapSurveyManager {
             
         }
     }
-    
+
     func createModuleStep(redcapItems: RedcapSurveyItemCollection) -> ChopResearchStudyModuleStep {
+        /*
+        let fieldType = redcapItems.first.fieldType
+        
+        if fieldType == "radio" {
+            return createRankingQuestionModuleStep(redcapItems: redcapItems)
+        } else if fieldType == "checkbox" {
+            return createMatrixQuestionModuleStep(redcapItems: redcapItems)
+        } else {
+            print("Error: unknown grouped field type: \(fieldType))")
+        }
+        
+        return createMatrixQuestionModuleStep(redcapItems: redcapItems)
+        */
+        var sectionHeader = ""
+        var matrixGroupName = ""
+        var isMultipleAnswer = false
+        var selectChoiceCollection = ChopItemSelectChoiceCollection()
+        var rows = [ChopMatrixQuestionRow]()
+        
+        for item in redcapItems {
+            if sectionHeader.isEmpty {
+                sectionHeader = item.sectionHeader
+                matrixGroupName = item.matrixGroupName
+
+                if item.fieldType == "checkbox" {
+                    isMultipleAnswer = true
+                } else if item.fieldType == "radio" {
+                    isMultipleAnswer = false
+                } else {
+                    print("ERROR: unknown grouped field type: \(item.fieldType))")
+                }
+
+                let parser = RedcapSelectChoiceParser()
+                selectChoiceCollection = parser.parseSelectChoices(choicesAsStr: item.selectChoicesOrCalculations)
+            }
+            let row = ChopMatrixQuestionRow(
+                withWebId: item.fieldName,
+                withItemId: item.fieldName,
+                withDisplayString: item.fieldLabel)
+            rows += [row]
+        }
+        return ChopMatrixQuestion(withStepID: matrixGroupName,
+                                  withWebId: matrixGroupName,
+                                  withQuestion: sectionHeader,
+                                  allowsMultipleAnswers: isMultipleAnswer,
+                                  withItems: rows,
+                                  withQuestionChoices: selectChoiceCollection)
+    }
+    
+    func createMatrixQuestionModuleStep(redcapItems: RedcapSurveyItemCollection) -> ChopResearchStudyModuleStep {
+
+        var sectionHeader = ""
+        var matrixGroupName = ""
+        var selectChoiceCollection = ChopItemSelectChoiceCollection()
+        var rows = [ChopMatrixQuestionRow]()
+
+        for item in redcapItems {
+            if sectionHeader.isEmpty {
+                sectionHeader = item.sectionHeader
+                matrixGroupName = item.matrixGroupName
+
+                let parser = RedcapSelectChoiceParser()
+                selectChoiceCollection = parser.parseSelectChoices(choicesAsStr: item.selectChoicesOrCalculations)
+            }
+            let row = ChopMatrixQuestionRow(
+                withWebId: item.fieldName,
+                withItemId: item.fieldName,
+                withDisplayString: item.fieldLabel)
+            rows += [row]
+        }
+        return ChopMatrixQuestion(withStepID: matrixGroupName,
+                                  withWebId: matrixGroupName,
+                                  withQuestion: sectionHeader,
+                                  allowsMultipleAnswers: true,
+                                  withItems: rows,
+                                  withQuestionChoices: selectChoiceCollection)
+    }
+
+    func createRankingQuestionModuleStep(redcapItems: RedcapSurveyItemCollection) -> ChopResearchStudyModuleStep {
         
         var rankingItems = [ChopRankingItem]()
         var matrixGroupName = ""
         var sectionHeader = ""
-
+         
         for item in redcapItems {
+            
             if sectionHeader.isEmpty {
                 sectionHeader = item.sectionHeader
                 matrixGroupName = item.matrixGroupName
@@ -203,11 +283,12 @@ struct RedcapSurveyManager {
                                              withItemId: item.fieldName,
                                              withDisplayString: item.fieldLabel)]
         }
+        
         return ChopRankingQuestion(withStepID: matrixGroupName,
-                                     withQuestion: sectionHeader,
-                                     withItems: rankingItems)
+                                   withQuestion: sectionHeader,
+                                   withItems: rankingItems)
     }
-    
+
     mutating func captureResults(withResult taskResult: ORKTaskResult) {
         
         moduleSteps.captureResults(withResult: taskResult)
