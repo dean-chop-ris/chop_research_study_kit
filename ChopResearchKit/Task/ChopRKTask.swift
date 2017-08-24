@@ -35,7 +35,10 @@ public class ChopRKTask : ORKNavigableOrderedTask
     
     func navigateSetSkipNextStep(skipFrom: String,
                          onAnswerValue answerValue: Int) -> Bool {
-
+        // This method is mis-named.
+        // It should be navigateSetShowNextStep()
+        // because it sets a rule to show the next step only if
+        // the given answer is present
         guard let stepToSkip = moduleSteps.nextStep(fromStepId: skipFrom) else {
             return false
         }
@@ -49,22 +52,57 @@ public class ChopRKTask : ORKNavigableOrderedTask
                                skipTo: stepAfterSkippedStep.stepId)
     }
 
+    func navigateSetSkip(stepIdToSkip: String,
+                         unlessStepsHaveValues workflowLogic: ChopModuleStepWorkflowLogic) -> Bool {
+        
+        var predicates = [(NSPredicate, String)]()
+        for expression in workflowLogic.expressions {
+        
+            let predicateAnswerValue = Int(expression.answerValue)! as (NSCoding & NSCopying & NSObjectProtocol)
+            let predicateHasValue = ORKResultPredicate.predicateForChoiceQuestionResult(
+                with: ORKResultSelector(resultIdentifier: expression.stepId),
+                expectedAnswerValue: predicateAnswerValue)
+            
+            guard let stepToSkipTo = moduleSteps.nextStep(fromStepId: stepIdToSkip) else {
+                return false
+            }
+
+            print("navigateSetSkip(multi) \n stepIdToSkip:\t\(stepIdToSkip) \n stepIdWithValue:\t\(expression.stepId) \n hasAnswerWithValue:\t\(expression.answerValue)")
+            predicates.append((predicateHasValue, stepToSkipTo.stepId))
+        }
+        
+        guard let stepToSkipFrom = moduleSteps.previousStep(fromStepId: stepIdToSkip) else {
+            return false
+        }
+        
+        let rule = ORKPredicateStepNavigationRule( resultPredicatesAndDestinationStepIdentifiers:
+            predicates)
+        
+        self.setNavigationRule(rule, forTriggerStepIdentifier: stepToSkipFrom.stepId)
+        
+        return true
+    }
+
     func navigateSetSkip(skipFrom: String,
                          onAnswerValue answerValue: Int,
                          skipTo: String) -> Bool {
         
+        // This method is mis-named.
+        // It should be navigateSetShow()
+        // because it sets a rule to skip the step(s) if
+        // the answer is not present.
         let predicateOther = ORKResultPredicate.predicateForChoiceQuestionResult(
-                  with: ORKResultSelector(resultIdentifier: skipFrom),
-                  expectedAnswerValue: answerValue as (NSCoding & NSCopying & NSObjectProtocol))
+            with: ORKResultSelector(resultIdentifier: skipFrom),
+            expectedAnswerValue: answerValue as (NSCoding & NSCopying & NSObjectProtocol))
         let predicateNotOther = NSCompoundPredicate(notPredicateWithSubpredicate: predicateOther)
         let rule = ORKPredicateStepNavigationRule(
             resultPredicatesAndDestinationStepIdentifiers: [(predicateNotOther, skipTo)])
         
         self.setNavigationRule(rule, forTriggerStepIdentifier: skipFrom)
-
+        
         return true
     }
-    
+
     func navigateSetSurveyStepDisplayRule(forStepIdToDisplay stepIdToDisplay: String, onlyIfStepIdIsValid stepIdToValidate: String) {
         
         let rule = SurveyStepDisplayRule(stepToDisplay: stepIdToDisplay,

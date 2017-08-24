@@ -10,6 +10,8 @@ import ResearchKit
 
 struct ChopValuePickerQuestion {
     
+    // To be deprecated in favor of following init
+    // that takes a more accurate answer set
     init(withStepID stepID: String,
          withWebId webId: String,
          withQuestion question: String,
@@ -24,6 +26,21 @@ struct ChopValuePickerQuestion {
             choiceNumber += 1
         }
 
+        
+        let answerFormat: ORKValuePickerAnswerFormat = ORKValuePickerAnswerFormat(textChoices: choices)
+        
+        rkStep = ORKQuestionStep(identifier: stepID,
+                                 title: question,
+                                 answer: answerFormat)
+        base.web_Id = webId
+    }
+
+    init(withStepID stepID: String,
+         withWebId webId: String,
+         withQuestion question: String,
+         withChoices questionChoices: ChopItemSelectChoiceCollection) {
+        
+        choices = questionChoices.rkTextChoices
         
         let answerFormat: ORKValuePickerAnswerFormat = ORKValuePickerAnswerFormat(textChoices: choices)
         

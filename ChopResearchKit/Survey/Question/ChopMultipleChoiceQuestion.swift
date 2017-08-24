@@ -14,6 +14,8 @@ struct ChopMultipleChoiceQuestion {
     public var isMultipleAnswer: Bool { get { return _isMultipleAnswer } }
     public var answers: [Int] { get { return _answers } }
     
+    // To be deprecated in favor of following init
+    // that takes a more accurate answer set
     init(withStepID stepID: String,
          withWebId webId: String,
          withQuestion question: String,
@@ -30,6 +32,25 @@ struct ChopMultipleChoiceQuestion {
         let answerFormat: ORKTextChoiceAnswerFormat = ORKAnswerFormat.choiceAnswerFormat(
             with: (isMultAnswers) ? .multipleChoice : .singleChoice,
             textChoices: choices)
+        rkStep = ORKQuestionStep(identifier: stepID,
+                                 title: question,
+                                 answer: answerFormat)
+        base.web_Id = webId
+        self._isMultipleAnswer = isMultAnswers
+    }
+
+    init(withStepID stepID: String,
+         withWebId webId: String,
+         withQuestion question: String,
+         allowsMultipleAnswers isMultAnswers: Bool,
+         withChoices questionChoices: ChopItemSelectChoiceCollection) {
+
+        choices = questionChoices.rkTextChoices
+        
+        let answerFormat: ORKTextChoiceAnswerFormat = ORKAnswerFormat.choiceAnswerFormat(
+            with: (isMultAnswers) ? .multipleChoice : .singleChoice,
+            textChoices: choices)
+        
         rkStep = ORKQuestionStep(identifier: stepID,
                                  title: question,
                                  answer: answerFormat)

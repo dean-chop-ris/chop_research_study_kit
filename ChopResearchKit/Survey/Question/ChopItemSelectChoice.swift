@@ -46,13 +46,17 @@ struct ChopItemSelectChoiceCollection {
     var rkTextChoices: [ORKTextChoice] {
         
         var textChoices = [ORKTextChoice]()
+        var choiceIndex = 0
         
         for item in items {
-            let rkVal = item.hasValue ? item.value : ChopItemSelectChoice.NO_VALUE
+//            let rkVal = item.hasValue ? item.value : ChopItemSelectChoice.NO_VALUE
+            let rkVal = item.hasValue ? item.value : choiceIndex
             
             textChoices += [ORKTextChoice(
                 text: item.description,
                 value: rkVal as NSCoding & NSCopying & NSObjectProtocol)]
+            
+            choiceIndex += 1
         }
         return textChoices
     }

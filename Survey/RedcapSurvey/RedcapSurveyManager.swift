@@ -91,6 +91,7 @@ struct RedcapSurveyManager {
         var currentMatrixGroup = RedcapSurveyItemCollection()
         var moduleStep: ChopResearchStudyModuleStep? = nil
         var newGroup = false
+        var branchingLogics = [RedcapSurveyItemBranchingLogic]()
         
         for item in items {
             newGroup = false
@@ -145,6 +146,10 @@ struct RedcapSurveyManager {
                     return
                 }
             }
+            
+            if item.branchingLogic.isEmpty == false {
+                branchingLogics += [item.branchingLogic]
+            }
         }
         
         //////////////////////////////////////////////////////////////////////
@@ -183,9 +188,22 @@ struct RedcapSurveyManager {
                         onlyIfStepIdIsValid: step.stepId)
                 }
             }
-            
-            
         }
+        
+        //////////////////////////////////////////////////////////////////////
+        // Navigation Setup: Branching Logic
+        //////////////////////////////////////////////////////////////////////
+        for branchingLogic in branchingLogics {
+
+            if rkSurveyTask.navigateSetSkip(
+                stepIdToSkip: branchingLogic.parentStepId,
+                unlessStepsHaveValues: branchingLogic.workflowLogic) == false {
+
+                print("Error: 'add branching logic' failed, step ID: \(branchingLogic.parentStepId)")
+                break
+            }
+        }
+        
     }
 
     func createModuleStep(redcapItems: RedcapSurveyItemCollection) -> ChopResearchStudyModuleStep {

@@ -20,7 +20,14 @@ struct RedcapSurveyItem  {
     var textValidationMin: Int { get { return attributeAsInt(key: "text_validation_min") } }
     var fieldType: String { get { return attributeAsString(key: "field_type") } }
     var fieldNote: String { get { return attributeAsString(key: "field_note") } }
-    var branchingLogic: String { get { return attributeAsString(key: "branching_logic") }    }
+    
+    var branchingLogic: RedcapSurveyItemBranchingLogic {
+        
+        return RedcapSurveyItemBranchingLogic(
+            parentStepIdentifier: fieldName,
+            logicAsString: attributeAsString(key: "branching_logic"))
+    }
+    
     var sectionHeader: String { get { return attributeAsString(key: "section_header") }    }
     var formName: String { get { return attributeAsString(key: "form_name") }    }
     var textValidationTypeOrShowSliderNumber: String { get { return attributeAsString(key: "text_validation_type_or_show_slider_number") }    }
@@ -112,22 +119,22 @@ struct RedcapSurveyItem  {
 
         } else if fieldType == "checkbox" {
             
-            let answers = parseSelectChoiceDescriptions()
+            let choices = parseSelectChoices()
             
             step = ChopMultipleChoiceQuestion(withStepID: fieldName,
                                                 withWebId: fieldName,
                                                 withQuestion: fieldLabel,
                                                 allowsMultipleAnswers: true,
-                                                withAnswers: answers)
+                                                withChoices: choices)
         } else if fieldType == "radio" {
             
-            let answers = parseSelectChoiceDescriptions()
+            let choices = parseSelectChoices()
             
             step = ChopMultipleChoiceQuestion(withStepID: fieldName,
                                                 withWebId: fieldName,
                                                 withQuestion: fieldLabel,
                                                 allowsMultipleAnswers: false,
-                                                withAnswers: answers)
+                                                withChoices: choices)
         } else if fieldType == "text" {
          
             step = ChopTextQuestion(withStepID: fieldName,
@@ -142,12 +149,12 @@ struct RedcapSurveyItem  {
 
         } else if fieldType == "dropdown" {
             
-            let answers = parseSelectChoiceDescriptions()
+            let choices = parseSelectChoices()
 
             step = ChopValuePickerQuestion(withStepID: fieldName,
                                            withWebId: fieldName,
                                            withQuestion: fieldLabel,
-                                           withAnswers: answers)
+                                           withChoices: choices)
 
         } else if fieldType == "yesno" {
             
@@ -180,51 +187,12 @@ struct RedcapSurveyItem  {
         }
         return step
     }
-    
-    private func parseSelectChoiceDescriptions() -> [String] {
-//        var answersArray = [String]()
-//        let choicesArray = selectChoicesOrCalculations.components(separatedBy: "|")
-//        
-//        for choiceStr in choicesArray {
-//            
-//            let choiceElementsArray = choiceStr.components(separatedBy: ",")
-//            
-//            answersArray += [choiceElementsArray[1]]
-//        }
-//        return answersArray
-        var choiceDescriptions = [String]()
+
+    private func parseSelectChoices() -> ChopItemSelectChoiceCollection {
         let parser = RedcapSelectChoiceParser()
-        let choices = parser.parseSelectChoices(choicesAsStr: selectChoicesOrCalculations)
-        
-        for choice in choices {
-            choiceDescriptions += [choice.description]
-        }
-        return choiceDescriptions
+
+        return parser.parseSelectChoices(choicesAsStr: selectChoicesOrCalculations)
     }
- 
-//    private func parseSelectChoices() -> [ChopItemSelectChoice] {
-//        
-//        var selectChoices = [ChopItemSelectChoice]()
-//        let choicesArray = selectChoicesOrCalculations.components(separatedBy: "|")
-//        
-//        for choiceStr in choicesArray {
-//            
-//            var selectChoice = ChopItemSelectChoice()
-//            
-//            if choiceStr.contains(",") {
-//                selectChoice.hasValue = true
-//                
-//                let choiceElementsArray = choiceStr.components(separatedBy: ",")
-//                selectChoice.value = Int(choiceElementsArray[0].trim())!
-//                selectChoice.description = choiceElementsArray[1].trim()
-//            } else {
-//                selectChoice.description = choiceStr
-//            }
-//            
-//            selectChoices += [selectChoice]
-//        }
-//        return selectChoices
-//    }
 
     private func attributeAsString(key: String) -> String {
         

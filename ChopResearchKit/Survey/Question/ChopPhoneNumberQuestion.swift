@@ -160,6 +160,22 @@ extension String {
         return self.trimmingCharacters(in: NSCharacterSet.whitespaces)
     }
     
+    func substring(startIndex: Int) -> String {
+
+        return substring(startIndex: startIndex,
+                         len: self.length - startIndex)
+    }
+
+    func substring(startIndex: Int, len: Int ) -> String {
+        
+        let start = self.index(self.startIndex, offsetBy: startIndex)
+        let numCharsFromEnd = self.length - (startIndex + len - 1)
+        let end = self.index(self.endIndex, offsetBy: -1 * numCharsFromEnd)
+        let range = start..<end
+        
+        return self.substring(with: range)
+    }
+    
     func digitsOnly() -> String{
         
         let stringArray = self.components(separatedBy:
