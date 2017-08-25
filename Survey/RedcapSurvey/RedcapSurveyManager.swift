@@ -9,7 +9,9 @@
 import Foundation
 import ResearchKit
 
-
+//
+// A RedcapSurvey is equivilant to an Instrument in the Redcap system
+//
 struct RedcapSurveyManager {
 
     var isLoaded: Bool {

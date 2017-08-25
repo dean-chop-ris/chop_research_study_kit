@@ -10,31 +10,31 @@ import Foundation
 
 struct RedcapSurveyItem  {
     
-    var fieldAnnotation: String { get { return attributeAsString(key: "field_annotation") } }
-    var fieldLabel: String { get { return attributeAsString(key: "field_label") } }
-    var fieldName: String { get { return attributeAsString(key: "field_name") } }
-    var matrixRanking: String { get { return attributeAsString(key: "matrix_ranking") } }
-    var identifier: String { get { return attributeAsString(key: "identifier") } }
-    var selectChoicesOrCalculations: String { get { return attributeAsString(key: "select_choices_or_calculations") } }
-    var textValidationMax: Int { get { return attributeAsInt(key: "text_validation_max") } }
-    var textValidationMin: Int { get { return attributeAsInt(key: "text_validation_min") } }
-    var fieldType: String { get { return attributeAsString(key: "field_type") } }
-    var fieldNote: String { get { return attributeAsString(key: "field_note") } }
+    var fieldAnnotation: String { get { return base.attributeAsString(key: "field_annotation") } }
+    var fieldLabel: String { get { return base.attributeAsString(key: "field_label") } }
+    var fieldName: String { get { return base.attributeAsString(key: "field_name") } }
+    var matrixRanking: String { get { return base.attributeAsString(key: "matrix_ranking") } }
+    var identifier: String { get { return base.attributeAsString(key: "identifier") } }
+    var selectChoicesOrCalculations: String { get { return base.attributeAsString(key: "select_choices_or_calculations") } }
+    var textValidationMax: Int { get { return base.attributeAsInt(key: "text_validation_max") } }
+    var textValidationMin: Int { get { return base.attributeAsInt(key: "text_validation_min") } }
+    var fieldType: String { get { return base.attributeAsString(key: "field_type") } }
+    var fieldNote: String { get { return base.attributeAsString(key: "field_note") } }
     
     var branchingLogic: RedcapSurveyItemBranchingLogic {
         
         return RedcapSurveyItemBranchingLogic(
             parentStepIdentifier: fieldName,
-            logicAsString: attributeAsString(key: "branching_logic"))
+            logicAsString: base.attributeAsString(key: "branching_logic"))
     }
     
-    var sectionHeader: String { get { return attributeAsString(key: "section_header") }    }
-    var formName: String { get { return attributeAsString(key: "form_name") }    }
-    var textValidationTypeOrShowSliderNumber: String { get { return attributeAsString(key: "text_validation_type_or_show_slider_number") }    }
-    var customAlignment: String { get { return attributeAsString(key: "custom_alignment") }    }
-    var requiredField: String { get { return attributeAsString(key: "required_field") }    }
-    var questionNumber: String { get { return attributeAsString(key: "question_number") }    }
-    var matrixGroupName: String { get { return attributeAsString(key: "matrix_group_name") } }
+    var sectionHeader: String { get { return base.attributeAsString(key: "section_header") }    }
+    var formName: String { get { return base.attributeAsString(key: "form_name") }    }
+    var textValidationTypeOrShowSliderNumber: String { get { return base.attributeAsString(key: "text_validation_type_or_show_slider_number") }    }
+    var customAlignment: String { get { return base.attributeAsString(key: "custom_alignment") }    }
+    var requiredField: String { get { return base.attributeAsString(key: "required_field") }    }
+    var questionNumber: String { get { return base.attributeAsString(key: "question_number") }    }
+    var matrixGroupName: String { get { return base.attributeAsString(key: "matrix_group_name") } }
  
     var generatesValidModuleStep: Bool {
         
@@ -77,7 +77,7 @@ struct RedcapSurveyItem  {
     
     init(data: Dictionary<String, Any>) {
         
-        self.coreAttributes = data
+        base.coreAttributes = data
     }
 
     func generateModuleStep(options: RedcapSurveyItemGenerationOptions? = nil) -> ChopResearchStudyModuleStep {
@@ -194,23 +194,109 @@ struct RedcapSurveyItem  {
         return parser.parseSelectChoices(choicesAsStr: selectChoicesOrCalculations)
     }
 
-    private func attributeAsString(key: String) -> String {
-        
-        return coreAttributes[key] as! String
-    }
+    private var base = RedcapItemBase()
+}
 
-    private func attributeAsInt(key: String) -> Int {
+
+struct RedcapSurveyItemCollection {
+    
+    var isEmpty: Bool {
+        get { return items.count == 0 }
+    }
+    
+    var first: RedcapSurveyItem {
         
-        let attrAsStr = coreAttributes[key] as! String
+        return items[0]
+    }
+    
+    var containsRecordIdField: Bool {
         
-        if attrAsStr.isEmpty {
-            return Int.min
+        for item in items {
+            
+            if item.isRecordIdField {
+                return true
+            }
+        }
+        return false
+    }
+    
+    func filter(instrumentName: String) -> RedcapSurveyItemCollection {
+        
+        var newCollection = RedcapSurveyItemCollection()
+        
+        for item in items {
+            
+            if (item.formName == instrumentName) {
+                newCollection.add(item: item)
+            }
+        }
+        return newCollection
+    }
+    
+    mutating func loadFromJSON(data: [Dictionary<String, Any>], forInstrumentName instrumentName: String = "") {
+        
+        let loadAll = instrumentName.isEmpty
+        
+        for item in data {
+            
+            let surveyItem = RedcapSurveyItem(data: item)
+            
+            if loadAll || (surveyItem.formName == instrumentName) {
+                items += [surveyItem]
+            }
         }
         
-        return Int(attrAsStr)!
     }
+    
+    mutating func removeAll() {
+        
+        items = [RedcapSurveyItem]()
+    }
+    
+    mutating func add(item: RedcapSurveyItem) {
+        
+        items += [item]
+    }
+    
+    fileprivate var items = [RedcapSurveyItem]()
+}
 
-    private var coreAttributes: Dictionary<String, Any>
+extension RedcapSurveyItemCollection: Sequence {
+    // MARK: Sequence
+    public func makeIterator() -> RedcapSurveyItemIterator {
+        
+        return RedcapSurveyItemIterator(withArray: items)
+    }
+}
+
+
+//////////////////////////////////////////////////////////////////////
+// RedcapSurveyItemIterator
+//////////////////////////////////////////////////////////////////////
+
+struct RedcapSurveyItemIterator : IteratorProtocol {
+    
+    var values: [RedcapSurveyItem]
+    var indexInSequence = 0
+    
+    init(withArray dictionary: [RedcapSurveyItem]) {
+        values = [RedcapSurveyItem]()
+        for value in dictionary {
+            self.values += [value]
+        }
+    }
+    
+    mutating func next() -> RedcapSurveyItem? {
+        if indexInSequence < values.count {
+            let element = values[indexInSequence]
+            indexInSequence += 1
+            
+            return element
+        } else {
+            indexInSequence = 0
+            return nil
+        }
+    }
 }
 
 /*

@@ -9,7 +9,7 @@
 import Foundation
 import ResearchKit
 
-typealias LoadRequestResponse = (ChopWebRequestResponse, NSError?) -> Void
+typealias LoadRequestResponse = (String, ChopWebRequestResponse, NSError?) -> Void
 typealias ModuleCompleteCallback = (ChopWorkflowAction) -> Void
 typealias WebRequestResponseRecievedCallback = (ChopWebRequestResponse) -> Void
 

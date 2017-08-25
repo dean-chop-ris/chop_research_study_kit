@@ -112,5 +112,16 @@ protocol ChopWebRequestSource {
     
 }
 
+extension ChopWebRequestSource {
+    
+    var payloadParamsDictionary: Dictionary<String, String> {  // A dictionary of JSON keys/values
+        
+        get {
+            let params = ChopWebRequestParameters()
+            
+            return params.postDictionary
+        }
+    }
 
+}
 
