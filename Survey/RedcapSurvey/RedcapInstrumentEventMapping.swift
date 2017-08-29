@@ -34,6 +34,19 @@ struct RedcapInstrumentEventMappingCollection {
         return items[0]
     }
     
+    func filter(eventId: String) -> RedcapInstrumentEventMappingCollection {
+        
+        var newCollection = RedcapInstrumentEventMappingCollection()
+        
+        for item in items {
+            
+            if item.uniqueEventName == eventId {
+                newCollection.add(item: item)
+            }
+        }
+        return newCollection
+    }
+
     func filter(mappingForm: String) -> RedcapInstrumentEventMappingCollection {
         
         var newCollection = RedcapInstrumentEventMappingCollection()

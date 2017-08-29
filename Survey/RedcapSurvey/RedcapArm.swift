@@ -43,29 +43,6 @@ struct RedcapArmId {
     private var armNumber = 0
 }
 
-struct RedcapIdComponent {
-    
-    var asString: String { return itemName }
-
-    init(redcapItemName: String) {
-
-        for char in redcapItemName.characters {
-            var str = ""
-            
-            if char.isUppercase {
-                str = char.description.lowercased()
-            }
-            
-            if char == " " {
-                str = "_"
-            }
-            itemName += str
-        }
-    }
-    
-    private var itemName = ""
-}
-
 extension Character {
     var isUppercase: Bool {
         return "A"..."Z" ~= self

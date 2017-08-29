@@ -29,6 +29,17 @@ struct RedcapStudyManager {
         return events.find(eventId: userRecord.currentEventId)!
     }
 
+    public var currentInstruments: RedcapInstrumentCollection {
+        
+        if mappings.isEmpty {
+            return RedcapInstrumentCollection()
+        }
+        
+        let mappingsForEvent = mappings.filter(eventId: currentEvent.uniqueEventName)
+        
+        return instruments.filter(instrumentMappings: mappingsForEvent)
+    }
+    
     init(token: String) {
         
         redcapToken = token
@@ -46,157 +57,114 @@ struct RedcapStudyManager {
     
     mutating func load(options: Int, onCompletion: @escaping LoadRequestResponse) {
 
+        print("RedcapStudyManager.load(): begin")
         let queue = DispatchQueue.global(qos: DispatchQoS.background.qosClass)
         let group = DispatchGroup()
-
         let broker = ChopWebRequestBroker()
         
-        
+        print("RedcapStudyManager.load(): begin metadata")
         group.enter()
         queue.sync {
             let metadataSource = RedcapMetadataWebRequestSource(client: self)
             let request = ChopWebRequest(withSource: metadataSource)
             
             broker.send(request: request, onCompletion: { (response, error) in
+                print("RedcapStudyManager.load(): onComp metadata")
                 onCompletion("metadata", response, error)
                 group.leave()
+                print("RedcapStudyManager.load(): end metadata")
             }
             )
         }
         
+        print("RedcapStudyManager.load(): begin arm")
         group.enter()
         queue.sync {
             let armsSource = RedcapArmsWebRequestSource(client: self)
             let request = ChopWebRequest(withSource: armsSource)
             
             broker.send(request: request, onCompletion: { (response, error) in
+                print("RedcapStudyManager.load(): onComp arm")
                 onCompletion("arm", response, error)
                 group.leave()
+                print("RedcapStudyManager.load(): end arm")
             }
             )
         }
         
+        print("RedcapStudyManager.load(): begin event")
         group.enter()
         queue.sync {
             let eventsSource = RedcapEventsWebRequestSource(client: self)
             let request = ChopWebRequest(withSource: eventsSource)
             
             broker.send(request: request, onCompletion: { (response, error) in
+                print("RedcapStudyManager.load(): onComp event")
                 onCompletion("event", response, error)
                 group.leave()
+                print("RedcapStudyManager.load(): end event")
             }
             )
         }
         
+        print("RedcapStudyManager.load(): begin instrument")
+        group.enter()
+        queue.sync {
+            let mappingsSource = RedcapInstrumentsWebRequestSource(client: self)
+            let request = ChopWebRequest(withSource: mappingsSource)
+            
+            broker.send(request: request, onCompletion: { (response, error) in
+                print("RedcapStudyManager.load(): onComp instrument")
+                onCompletion("instrument", response, error)
+                group.leave()
+                print("RedcapStudyManager.load(): end instrument")
+            }
+            )
+        }
+        
+        print("RedcapStudyManager.load(): begin mapping")
         group.enter()
         queue.sync {
             let mappingsSource = RedcapInstrumentEventMappingsWebRequestSource(client: self)
             let request = ChopWebRequest(withSource: mappingsSource)
             
             broker.send(request: request, onCompletion: { (response, error) in
+                print("RedcapStudyManager.load(): onComp mapping")
                 onCompletion("mapping", response, error)
                 group.leave()
+                print("RedcapStudyManager.load(): end mapping")
             }
             )
         }
         
+        print("RedcapStudyManager.load(): begin user")
         group.enter()
         queue.sync {
             let userSource = RedcapUserRecordWebRequestSource(client: self)
             let request = ChopWebRequest(withSource: userSource)
             
             broker.send(request: request, onCompletion: { (response, error) in
+                print("RedcapStudyManager.load(): onComp user")
                 onCompletion("user", response, error)
                 group.leave()
+                print("RedcapStudyManager.load(): end user")
             }
             )
         }
 
+        print("RedcapStudyManager.load(): Waiting...")
+        group.wait()
+        print("RedcapStudyManager.load(): notify(done)")
         group.notify(queue: DispatchQueue.main, execute: {
             let dummyResponse = ChopWebRequestResponse(usingSimulator: ChopWebServerSimulator(withParamsDictionary: Dictionary<String, String>()))
 
             onCompletion("load_done", dummyResponse, nil)
+            print("RedcapStudyManager.load(): notify(done) complete")
             }
         )
+        print("RedcapStudyManager.load(): end")
     }
 
-
-    mutating func load_orig(options: Int, onCompletion: @escaping LoadRequestResponse) {
-
-        let group = DispatchGroup()
-
-        group.enter()
-        let metadataSource = RedcapMetadataWebRequestSource(client: self)
-        var request = ChopWebRequest(withSource: metadataSource)
-        let broker = ChopWebRequestBroker()
-        
-        broker.send(request: request, onCompletion: { (response, error) in
-                onCompletion("metadata", response, error)
-                group.leave()
-            }
-        )
-
-        group.enter()
-        let armsSource = RedcapArmsWebRequestSource(client: self)
-        
-        request = ChopWebRequest(withSource: armsSource)
-        
-        broker.send(request: request, onCompletion: { (response, error) in
-                onCompletion("arm", response, error)
-                group.leave()
-            }
-        )
-
-        group.enter()
-        let eventsSource = RedcapEventsWebRequestSource(client: self)
-        
-        request = ChopWebRequest(withSource: eventsSource)
-        
-        broker.send(request: request, onCompletion: { (response, error) in
-                onCompletion("event", response, error)
-                group.leave()
-            }
-        )
-
-        group.enter()
-        let mappingsSource = RedcapInstrumentEventMappingsWebRequestSource(client: self)
-        
-        request = ChopWebRequest(withSource: mappingsSource)
-        
-        broker.send(request: request, onCompletion: { (response, error) in
-                onCompletion("mapping", response, error)
-                group.leave()
-            }
-        )
-
-        group.enter()
-        let userSource = RedcapUserRecordWebRequestSource(client: self)
-        
-        request = ChopWebRequest(withSource: userSource)
-        
-        broker.send(request: request, onCompletion: { (response, error) in
-                onCompletion("user", response, error)
-                group.leave()
-            }
-        )
-        
-        group.notify(queue: DispatchQueue.global(), execute: { () in
-            let dummyResponse = ChopWebRequestResponse(usingSimulator: ChopWebServerSimulator(withParamsDictionary: Dictionary<String, String>()))
-            onCompletion("load_done", dummyResponse, nil)
-        })
-    }
-    /*
-    func createRedcapSurveyManager(instrumentName: String) -> RedcapSurveyManager {
-     
-        var mgr = RedcapSurveyManager(
-            token: redcapToken,
-            redcapInstrumentName: instrumentName)
-        
-        mgr.load(redcapItems: items)
-        
-        return mgr
-    }
-    */
     mutating func extract(requestId: String, fromResponse response: ChopWebRequestResponse) {
         
         if requestId == "metadata" {
@@ -211,8 +179,12 @@ struct RedcapStudyManager {
             events.loadFromJSON(data: response.data)
         }
 
+        if requestId == "instrument" {
+            instruments.loadFromJSON(data: response.data)
+        }
+        
         if requestId == "mapping" {
-            events.loadFromJSON(data: response.data)
+            mappings.loadFromJSON(data: response.data)
         }
 
         if requestId == "user" {
@@ -223,6 +195,8 @@ struct RedcapStudyManager {
     fileprivate var items = RedcapSurveyItemCollection()
     fileprivate var arms = RedcapArmCollection()
     fileprivate var events = RedcapEventCollection()
+    fileprivate var instruments = RedcapInstrumentCollection()
+    fileprivate var mappings = RedcapInstrumentEventMappingCollection()
     fileprivate var userRecord = RedcapUserRecord()
 }
 
@@ -384,6 +358,33 @@ extension RedcapInstrumentEventMappingsWebRequestSource: ChopWebRequestSource {
             
             params.load(key: "token", value: client.token)
             params.load(key: "content", value: "formEventMapping")
+            params.load(key: "format", value: "json")
+            params.load(key: "returnFormat", value: "json")
+            return params.postDictionary
+        }
+    }
+}
+
+struct RedcapInstrumentsWebRequestSource {
+    
+    
+    fileprivate var client: RedcapWebRequestClient
+}
+
+extension RedcapInstrumentsWebRequestSource: ChopWebRequestSource {
+    
+    var destinationUrl: String
+    {
+        return client.destinationUrl
+    }
+    
+    var headerParamsDictionary: Dictionary<String, String> {
+        
+        get {
+            var params = ChopWebRequestParameters()
+            
+            params.load(key: "token", value: client.token)
+            params.load(key: "content", value: "instrument")
             params.load(key: "format", value: "json")
             params.load(key: "returnFormat", value: "json")
             return params.postDictionary

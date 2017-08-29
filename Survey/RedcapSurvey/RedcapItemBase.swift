@@ -14,6 +14,10 @@ struct RedcapItemBase {
 
     func attributeAsString(key: String) -> String {
         
+        if coreAttributes.keys.contains(key) == false {
+            return ""
+        }
+        
         return coreAttributes[key] as! String
     }
     
