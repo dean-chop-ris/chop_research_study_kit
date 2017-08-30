@@ -1,5 +1,5 @@
 //
-//  RedcapSurveyItemGenerationOptions.swift
+//  RedcapInstrumentFieldGenerationOptions.swift
 //  LongitudinalStudy1
 //
 //  Created by Ritter, Dean on 8/15/17.
@@ -9,13 +9,13 @@
 import Foundation
 
 
-struct RedcapSurveyItemGenerationOptions {
+struct RedcapInstrumentFieldGenerationOptions {
     
     init() {
         
     }
     
-    init(initOptions: RedcapSurveyItemGenerationOptions) {
+    init(initOptions: RedcapInstrumentFieldGenerationOptions) {
         self.optionsDictionary = initOptions.optionsDictionary
     }
 

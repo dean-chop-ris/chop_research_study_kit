@@ -15,7 +15,7 @@ struct RedcapInstrument {
     var instrumentLabel: String { get { return base.attributeAsString(key: "instrument_label") } }
 
     // Other Attributes
-    public private(set) var fields = RedcapSurveyItemCollection()
+    public private(set) var fields = RedcapInstrumentFieldCollection()
 
     var isLoaded: Bool {
         get { return (base.coreAttributes.isEmpty == false) && (fields.isEmpty == false) }
@@ -28,7 +28,7 @@ struct RedcapInstrument {
         base.coreAttributes = data
     }
     
-    mutating func load(withFields fieldsToLoad: RedcapSurveyItemCollection) {
+    mutating func load(withFields fieldsToLoad: RedcapInstrumentFieldCollection) {
         
         fields = fieldsToLoad
     }

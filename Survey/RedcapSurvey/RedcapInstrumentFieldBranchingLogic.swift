@@ -1,5 +1,5 @@
 //
-//  RedcapSurveyItemBranchingLogic.swift
+//  RedcapInstrumentFieldBranchingLogic.swift
 //  LongitudinalStudy1
 //
 //  Created by Ritter, Dean on 8/23/17.
@@ -9,7 +9,7 @@
 import Foundation
 
 
-struct RedcapSurveyItemBranchingLogic {
+struct RedcapInstrumentFieldBranchingLogic {
     
     public private(set) var parentStepId: String
     
@@ -31,7 +31,7 @@ struct RedcapSurveyItemBranchingLogic {
     }
     
     
-    public private(set) var expressions = [RedcapSurveyItemBranchingExpression]()
+    public private(set) var expressions = [RedcapInstrumentFieldBranchingExpression]()
     
     init(parentStepIdentifier: String, logicAsString: String) {
 
@@ -51,7 +51,7 @@ struct RedcapSurveyItemBranchingLogic {
     private var branchingLogicAsString: String
 }
 
-struct RedcapSurveyItemBranchingExpression {
+struct RedcapInstrumentFieldBranchingExpression {
     
     var fieldName: String { return baseExpression.stepId }
     var relation: ChopModuleStepWorkflowLogicRelation
@@ -78,9 +78,9 @@ struct RedcapSurveyItemBranchingExpression {
 
 struct RedcapLogicParser {
     
-    func parseBranchingLogic(branchingLogicAsString: String) -> [RedcapSurveyItemBranchingExpression] {
+    func parseBranchingLogic(branchingLogicAsString: String) -> [RedcapInstrumentFieldBranchingExpression] {
     
-        var expressions = [RedcapSurveyItemBranchingExpression]()
+        var expressions = [RedcapInstrumentFieldBranchingExpression]()
         
         if branchingLogicAsString.isEmpty {
             return expressions
@@ -90,7 +90,7 @@ struct RedcapLogicParser {
         
         for expressionString in expressionStrings {
             
-            let expression = RedcapSurveyItemBranchingExpression(expressionAsString: expressionString)
+            let expression = RedcapInstrumentFieldBranchingExpression(expressionAsString: expressionString)
             
             expressions += [expression]
         }

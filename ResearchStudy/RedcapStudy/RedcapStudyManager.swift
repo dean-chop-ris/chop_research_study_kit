@@ -192,7 +192,7 @@ struct RedcapStudyManager {
         }
     }
     
-    fileprivate var items = RedcapSurveyItemCollection()
+    fileprivate var items = RedcapInstrumentFieldCollection()
     fileprivate var arms = RedcapArmCollection()
     fileprivate var events = RedcapEventCollection()
     fileprivate var instruments = RedcapInstrumentCollection()

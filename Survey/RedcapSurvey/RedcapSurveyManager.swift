@@ -79,10 +79,10 @@ struct RedcapSurveyManager {
         // Survey Questions (from REDCap items)
         //////////////////////////////////////////////////////////////////////
         var currentMatrixGroupName = ""
-        var currentMatrixGroup = RedcapSurveyItemCollection()
+        var currentMatrixGroup = RedcapInstrumentFieldCollection()
         var moduleStep: ChopResearchStudyModuleStep? = nil
         var newGroup = false
-        var branchingLogics = [RedcapSurveyItemBranchingLogic]()
+        var branchingLogics = [RedcapInstrumentFieldBranchingLogic]()
         
         for item in instrument.fields {
             newGroup = false
@@ -197,7 +197,7 @@ struct RedcapSurveyManager {
         
     }
 
-    func createModuleStep(redcapItems: RedcapSurveyItemCollection) -> ChopResearchStudyModuleStep {
+    func createModuleStep(redcapItems: RedcapInstrumentFieldCollection) -> ChopResearchStudyModuleStep {
         /*
         let fieldType = redcapItems.first.fieldType
         
@@ -247,7 +247,7 @@ struct RedcapSurveyManager {
                                   withQuestionChoices: selectChoiceCollection)
     }
     
-    func createMatrixQuestionModuleStep(redcapItems: RedcapSurveyItemCollection) -> ChopResearchStudyModuleStep {
+    func createMatrixQuestionModuleStep(redcapItems: RedcapInstrumentFieldCollection) -> ChopResearchStudyModuleStep {
 
         var sectionHeader = ""
         var matrixGroupName = ""
@@ -276,7 +276,7 @@ struct RedcapSurveyManager {
                                   withQuestionChoices: selectChoiceCollection)
     }
 
-    func createRankingQuestionModuleStep(redcapItems: RedcapSurveyItemCollection) -> ChopResearchStudyModuleStep {
+    func createRankingQuestionModuleStep(redcapItems: RedcapInstrumentFieldCollection) -> ChopResearchStudyModuleStep {
         
         var rankingItems = [ChopRankingItem]()
         var matrixGroupName = ""

@@ -1,5 +1,5 @@
 //
-//  RedcapSurveyItem.swift
+//  RedcapInstrumentField.swift
 //  Test_RedcapSurvey_1
 //
 //  Created by Ritter, Dean on 7/20/17.
@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct RedcapSurveyItem  {
+struct RedcapInstrumentField  {
     
     var fieldAnnotation: String { get { return base.attributeAsString(key: "field_annotation") } }
     var fieldLabel: String { get { return base.attributeAsString(key: "field_label") } }
@@ -21,9 +21,9 @@ struct RedcapSurveyItem  {
     var fieldType: String { get { return base.attributeAsString(key: "field_type") } }
     var fieldNote: String { get { return base.attributeAsString(key: "field_note") } }
     
-    var branchingLogic: RedcapSurveyItemBranchingLogic {
+    var branchingLogic: RedcapInstrumentFieldBranchingLogic {
         
-        return RedcapSurveyItemBranchingLogic(
+        return RedcapInstrumentFieldBranchingLogic(
             parentStepIdentifier: fieldName,
             logicAsString: base.attributeAsString(key: "branching_logic"))
     }
@@ -80,7 +80,7 @@ struct RedcapSurveyItem  {
         base.coreAttributes = data
     }
 
-    func generateModuleStep(options: RedcapSurveyItemGenerationOptions? = nil) -> ChopResearchStudyModuleStep {
+    func generateModuleStep(options: RedcapInstrumentFieldGenerationOptions? = nil) -> ChopResearchStudyModuleStep {
 
         var step: ChopResearchStudyModuleStep
         
@@ -178,7 +178,7 @@ struct RedcapSurveyItem  {
                 max: 100,
                 maxValueDescription: (selectChoices.last?.description)!)
         } else {
-            print("WARNING: RedcapSurveyItem.generateModuleStep(): Unknown field type: " + fieldType)
+            print("WARNING: RedcapInstrumentField.generateModuleStep(): Unknown field type: " + fieldType)
             step = ChopMultipleChoiceQuestion(withStepID: fieldName,
                                                 withWebId: fieldName,
                                                 withQuestion: fieldLabel,
@@ -198,13 +198,13 @@ struct RedcapSurveyItem  {
 }
 
 
-struct RedcapSurveyItemCollection {
+struct RedcapInstrumentFieldCollection {
     
     var isEmpty: Bool {
         get { return items.count == 0 }
     }
     
-    var first: RedcapSurveyItem {
+    var first: RedcapInstrumentField {
         
         return items[0]
     }
@@ -220,9 +220,9 @@ struct RedcapSurveyItemCollection {
         return false
     }
     
-    func filter(instrumentName: String) -> RedcapSurveyItemCollection {
+    func filter(instrumentName: String) -> RedcapInstrumentFieldCollection {
         
-        var newCollection = RedcapSurveyItemCollection()
+        var newCollection = RedcapInstrumentFieldCollection()
         
         for item in items {
             
@@ -239,7 +239,7 @@ struct RedcapSurveyItemCollection {
         
         for item in data {
             
-            let surveyItem = RedcapSurveyItem(data: item)
+            let surveyItem = RedcapInstrumentField(data: item)
             
             if loadAll || (surveyItem.formName == instrumentName) {
                 items += [surveyItem]
@@ -250,43 +250,43 @@ struct RedcapSurveyItemCollection {
     
     mutating func removeAll() {
         
-        items = [RedcapSurveyItem]()
+        items = [RedcapInstrumentField]()
     }
     
-    mutating func add(item: RedcapSurveyItem) {
+    mutating func add(item: RedcapInstrumentField) {
         
         items += [item]
     }
     
-    fileprivate var items = [RedcapSurveyItem]()
+    fileprivate var items = [RedcapInstrumentField]()
 }
 
-extension RedcapSurveyItemCollection: Sequence {
+extension RedcapInstrumentFieldCollection: Sequence {
     // MARK: Sequence
-    public func makeIterator() -> RedcapSurveyItemIterator {
+    public func makeIterator() -> RedcapInstrumentFieldIterator {
         
-        return RedcapSurveyItemIterator(withArray: items)
+        return RedcapInstrumentFieldIterator(withArray: items)
     }
 }
 
 
 //////////////////////////////////////////////////////////////////////
-// RedcapSurveyItemIterator
+// RedcapInstrumentFieldIterator
 //////////////////////////////////////////////////////////////////////
 
-struct RedcapSurveyItemIterator : IteratorProtocol {
+struct RedcapInstrumentFieldIterator : IteratorProtocol {
     
-    var values: [RedcapSurveyItem]
+    var values: [RedcapInstrumentField]
     var indexInSequence = 0
     
-    init(withArray dictionary: [RedcapSurveyItem]) {
-        values = [RedcapSurveyItem]()
+    init(withArray dictionary: [RedcapInstrumentField]) {
+        values = [RedcapInstrumentField]()
         for value in dictionary {
             self.values += [value]
         }
     }
     
-    mutating func next() -> RedcapSurveyItem? {
+    mutating func next() -> RedcapInstrumentField? {
         if indexInSequence < values.count {
             let element = values[indexInSequence]
             indexInSequence += 1
