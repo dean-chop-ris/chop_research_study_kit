@@ -73,7 +73,7 @@ class ChopResearchStudy: NSObject {
         
         for key in modules.keys {
             if (modules[key]?.module.loadsRedcapItems)! {
-                modules[key]?.module.loadRedcapItems(redcapItems: redcapItemsProvider.redcapItems)
+                modules[key]?.module.loadRedcapItems(provider: redcapItemsProvider)
             }
         }
     }
@@ -259,6 +259,7 @@ struct ModuleInformation {
 
 
 protocol RedcapItemsProvider {
-    var redcapItems: RedcapSurveyItemCollection { get }
+    
+    func getRedcapInstrument(instrumentTitle: String) -> RedcapInstrument
 }
 

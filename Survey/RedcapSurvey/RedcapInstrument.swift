@@ -9,15 +9,28 @@
 import Foundation
 
 struct RedcapInstrument {
+    
     // Core Attributes
     var instrumentName: String { get { return base.attributeAsString(key: "instrument_name") } }
     var instrumentLabel: String { get { return base.attributeAsString(key: "instrument_label") } }
-    
+
+    // Other Attributes
+    public private(set) var fields = RedcapSurveyItemCollection()
+
+    var isLoaded: Bool {
+        get { return (base.coreAttributes.isEmpty == false) && (fields.isEmpty == false) }
+    }
+
     /////////////////////
     
     init(data: Dictionary<String, Any>) {
         
         base.coreAttributes = data
+    }
+    
+    mutating func load(withFields fieldsToLoad: RedcapSurveyItemCollection) {
+        
+        fields = fieldsToLoad
     }
     
     private var base = RedcapItemBase()
@@ -102,7 +115,18 @@ struct RedcapInstrumentCollection {
         }
         return nil
     }
-    
+
+    func find(title: String) -> RedcapInstrument? {
+        
+        for instrument in instruments {
+            
+            if instrument.instrumentLabel == title {
+                return instrument
+            }
+        }
+        return nil
+    }
+
     fileprivate var instruments = [RedcapInstrument]()
 }
 

@@ -32,6 +32,11 @@ struct ChopResearchStudyModuleOptions {
         self.optionsDictionary = initOptions.optionsDictionary
     }
     
+    func hasOptionType(_ optionType: String) -> Bool {
+        
+        return optionsDictionary.keys.contains(optionType)
+    }
+    
     var loginMode: LoginMode {
         get {
             if let val = optionsDictionary["Login_Mode"] {

@@ -37,7 +37,7 @@ protocol ChopResearchStudyModule {
     mutating func process(response: ChopWebRequestResponse)
     
     var loadsRedcapItems: Bool { get }
-    mutating func loadRedcapItems(redcapItems: RedcapSurveyItemCollection)
+    mutating func loadRedcapItems(provider: RedcapItemsProvider)
 }
 
 
@@ -75,5 +75,5 @@ extension ChopResearchStudyModule {
     mutating func process(response: ChopWebRequestResponse) { }
     
     var loadsRedcapItems: Bool { return false }
-    mutating func loadRedcapItems(redcapItems: RedcapSurveyItemCollection) {}
+    mutating func loadRedcapItems(provider: RedcapItemsProvider) {}
 }

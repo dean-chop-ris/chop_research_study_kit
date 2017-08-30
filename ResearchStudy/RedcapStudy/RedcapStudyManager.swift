@@ -230,11 +230,15 @@ extension RedcapStudyManager: ChopWebRequestSource {
 extension RedcapStudyManager: RedcapItemsProvider {
     // MARK: RedcapItemsProvider
     
-    var redcapItems: RedcapSurveyItemCollection {
+    func getRedcapInstrument(instrumentTitle: String) -> RedcapInstrument {
         
-        return items
+        var instrument = instruments.find(title: instrumentTitle)
+        let instrumentFields = items.filter(instrumentName: (instrument?.instrumentName)!)
+        
+        instrument?.load(withFields: instrumentFields)
+        
+        return instrument!
     }
-    
 }
 
 extension RedcapStudyManager: RedcapWebRequestClient {

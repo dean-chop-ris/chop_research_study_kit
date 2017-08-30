@@ -15,7 +15,7 @@ import ResearchKit
 struct RedcapSurveyManager {
 
     var isLoaded: Bool {
-        get { return items.isEmpty == false }
+        get { return instrument.isLoaded }
     }
 
     var surveySubmissionWebRequestParmeters: ChopWebRequestParameters {
@@ -29,12 +29,13 @@ struct RedcapSurveyManager {
     
     public private(set) var rkSurveyTask : ChopRKTask!
 
-    init(token: String, redcapInstrumentName: String) {
+    init(token: String, redcapInstrument: RedcapInstrument) {
         
         redcapToken = token
-        redcapFormName = redcapInstrumentName
+        instrument = redcapInstrument
+        generateSurveyTask()
     }
-    
+
     func createModuleViewController(delegate: ChopResearchStudy) -> UIViewController {
         
         if isLoaded == false {
@@ -55,22 +56,10 @@ struct RedcapSurveyManager {
             return taskViewController
         }
     }
-    
-    mutating func load(redcapItems: RedcapSurveyItemCollection) {
-        
-        items = redcapItems.filter(instrumentName: redcapFormName)
-        generateSurveyTask()
-    }
-
-    mutating func extract(fromResponse response: ChopWebRequestResponse) {
-        
-        items.loadFromJSON(data: response.data, forInstrumentName: self.redcapFormName)
-        generateSurveyTask()
-    }
 
     mutating func generateSurveyTask() {
-
-        if items.containsRecordIdField == false {
+        
+        if instrument.fields.containsRecordIdField == false {
             //////////////////////////////////////////////////////////////////////
             // Record Id
             //////////////////////////////////////////////////////////////////////
@@ -95,7 +84,7 @@ struct RedcapSurveyManager {
         var newGroup = false
         var branchingLogics = [RedcapSurveyItemBranchingLogic]()
         
-        for item in items {
+        for item in instrument.fields {
             newGroup = false
             moduleStep = nil
             
@@ -314,10 +303,9 @@ struct RedcapSurveyManager {
         moduleSteps.captureResults(withResult: taskResult)
     }
 
-    private var items = RedcapSurveyItemCollection()
-    private var redcapFormName: String
-    fileprivate var moduleSteps = ChopModuleStepCollection()
     fileprivate var redcapToken: String
+    private var instrument = RedcapInstrument(data: Dictionary<String,Any>())
+    fileprivate var moduleSteps = ChopModuleStepCollection()
 }
 
 

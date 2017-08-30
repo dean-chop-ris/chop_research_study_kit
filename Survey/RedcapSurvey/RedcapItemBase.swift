@@ -23,15 +23,10 @@ struct RedcapItemBase {
     
     func attributeAsInt(key: String) -> Int {
 
-        /*
-        let attrAsStr = coreAttributes[key] as! String
-        
-        if attrAsStr.isEmpty {
-            return Int.min
+        if let valAsInt = coreAttributes[key] as? Int {
+            return valAsInt
         }
         
-        return Int(attrAsStr)!
-        */
-        return coreAttributes[key] as! Int
+        return Int.min
     }
 }
