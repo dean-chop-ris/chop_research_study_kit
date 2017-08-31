@@ -16,10 +16,9 @@ struct RedcapStudyManager {
     }
 
     public private(set) var redcapToken: String
+    public var redcapUserRecordId = ""
     
     public var currentArm: RedcapArm {
-        
-        //let currentEvent = events.find(eventId: userRecord.currentEventId)
         
         return arms.find(eventId: userRecord.currentEventId)!
     }
@@ -253,12 +252,18 @@ extension RedcapStudyManager: RedcapWebRequestClient {
     {
         return redcapToken
     }
+
+    var userRecordId: String
+    {
+        return redcapUserRecordId
+    }
 }
 
 protocol RedcapWebRequestClient {
     
     var destinationUrl: String { get }
     var token: String { get }
+    var userRecordId: String { get }
 }
 
 struct RedcapMetadataWebRequestSource {
@@ -418,7 +423,7 @@ extension RedcapUserRecordWebRequestSource: ChopWebRequestSource {
             params.load(key: "content", value: "record")
             params.load(key: "format", value: "json")
             params.load(key: "type", value: "flat")
-            params.load(key: "records", value: "23C837A0-E9CE-4A25-81E6-EC21D5E26674")
+            params.load(key: "records", value: client.userRecordId)
             params.load(key: "rawOrLabel", value: "raw")
             params.load(key: "rawOrLabelHeaders", value: "raw")
             params.load(key: "exportCheckboxLabel", value: "false")

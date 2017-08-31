@@ -155,6 +155,14 @@ extension ChopResearchStudy : ORKTaskViewControllerDelegate {
 
             }
         }
+        else if reason == ORKTaskViewControllerFinishReason.saved {
+            
+            let data = taskViewController.restorationData
+            
+            if data != nil {
+                print(data?.description as Any)
+            }
+        }
         else if reason != ORKTaskViewControllerFinishReason.discarded {
             
             let alert = ChopUIAlert(forViewController: taskViewController,
@@ -165,6 +173,10 @@ extension ChopResearchStudy : ORKTaskViewControllerDelegate {
             
         }
         taskViewController.dismiss(animated: true, completion: nil)
+    }
+   
+    func taskViewControllerSupportsSaveAndRestore(_ taskViewController: ORKTaskViewController) -> Bool {
+        return false
     }
     
     func taskViewController(_ taskViewController: ORKTaskViewController, shouldPresent step: ORKStep) -> Bool {

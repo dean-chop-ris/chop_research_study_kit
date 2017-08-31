@@ -14,6 +14,9 @@ class ChopResearchStudyViewController: UIViewController {
     // Segue Id's
     static let SID_ONBOARDING = "toOnboarding"
     static let SID_STUDY = "toStudy"
+    
+    // View Controller Id's
+    static let VCID_STUDY = "ChopStudyViewController"
 
     var contentHidden = false {
         didSet {
@@ -36,25 +39,46 @@ class ChopResearchStudyViewController: UIViewController {
     }
 
     
-    func executeWorkflowAction(actionType: ChopWorkflowActionTypeEnum) {
+    func execute(workflowActionType: ChopWorkflowActionTypeEnum) {
+        
         var action = ChopWorkflowAction()
         
-        action.actionType = actionType
+        action.actionType = workflowActionType
         
-        executeWorkflowAction(action: action)
+        execute(workflowAction: action)
     }
 
-    func executeWorkflowAction(action: ChopWorkflowAction) {
+    func execute(workflowAction: ChopWorkflowAction) {
         
         // execute action
-        switch action.actionType {
+        switch workflowAction.actionType {
+
+        case ChopWorkflowActionTypeEnum.UserMessage:
+            let title = workflowAction.hasUserMessage
+                            ? workflowAction.userMessageTitle
+                            : "Alert"
+            let msg = workflowAction.hasUserMessage
+                            ? workflowAction.userMessage
+                            : "Unknown Message"
+            let alert = ChopUIAlert(forViewController: self,
+                                    withTitle: title,
+                                    andMessage: msg)
+            
+            alert.show()
+            break
+
         case ChopWorkflowActionTypeEnum.ToStudy:
-            //            let alert = ChopUIAlert(forViewController: self,
-            //                                    withTitle: "Workflow",
-            //                                    andMessage: "Going to Study")
-            //
-            //            alert.show()
-            performSegue(withIdentifier: ChopResearchStudyViewController.SID_STUDY, sender: self)
+            print("ChopResearchStudyViewController: Segue to Study")
+            
+            //performSegue(withIdentifier: ChopResearchStudyViewController.SID_STUDY, sender: self)
+            let storyboard = self.storyboard!
+            let vc = storyboard.instantiateViewController(
+                withIdentifier: ChopResearchStudyViewController.VCID_STUDY)
+                    as! ChopResearchStudyViewController
+            
+            vc.study = study
+            UIApplication.shared.keyWindow?.rootViewController?.present(vc, animated: true, completion: nil)
+            
             break
         case ChopWorkflowActionTypeEnum.ToOnboarding:
             /*
@@ -90,12 +114,12 @@ class ChopResearchStudyViewController: UIViewController {
     
     func toOnboarding() {
         //performSegue(withIdentifier: "toOnboarding", sender: self)
-        executeWorkflowAction(actionType: ChopWorkflowActionTypeEnum.ToOnboarding)
+        execute(workflowActionType: ChopWorkflowActionTypeEnum.ToOnboarding)
     }
     
     func toStudy() {
         //performSegue(withIdentifier: "toStudy", sender: self)
-        executeWorkflowAction(actionType: ChopWorkflowActionTypeEnum.ToStudy)
+        execute(workflowActionType: ChopWorkflowActionTypeEnum.ToStudy)
     }
     
     func toWithdrawl() {
@@ -111,6 +135,17 @@ class ChopResearchStudyViewController: UIViewController {
         */
     }
 
+    func topMostController() -> UIViewController {
+        
+        var topController: UIViewController = UIApplication.shared.keyWindow!.rootViewController!
+        
+        while (topController.presentedViewController != nil) {
+            topController = topController.presentedViewController!
+        }
+        
+        return topController
+    }
+    
     fileprivate lazy var _study: ChopResearchStudy = {
         return ChopResearchStudy(initWorkflow: ChopDefaultWorkflow())
     }()
