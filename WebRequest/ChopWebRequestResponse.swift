@@ -11,6 +11,8 @@ import Foundation
 
 struct ChopWebRequestResponse {
     
+    static let STATUS_CODE_NONE = -9999
+
     // Parameter ID's
     static let PID_REQUEST_RESULT = "request_result"
     
@@ -23,6 +25,8 @@ struct ChopWebRequestResponse {
     static let PV_PASSWORD_INCORRECT = "password_incorrect"
 
     public private(set) var statusCode: Int
+    public private(set) var request: ChopWebRequest?
+    public var error: Error?
 
     public var isValid: Bool {
         get
@@ -51,10 +55,11 @@ struct ChopWebRequestResponse {
         get { return self.requestResponseData }
     }
     
-    init(httpResponse: HTTPURLResponse, data: Data) {
+    init(httpResponse: HTTPURLResponse, data: Data, requestResponded: ChopWebRequest) {
         
-        self.statusCode = httpResponse.statusCode
-
+        statusCode = httpResponse.statusCode
+        request = requestResponded
+        
         parseJSON(data: data)
         
         print("----- HTTP RESPONSE -----------------")
@@ -73,6 +78,13 @@ struct ChopWebRequestResponse {
         print("----- /HTTP RESPONSE ----------------")
     }
 
+    init(requestError: Error, requestResponded: ChopWebRequest) {
+    
+        statusCode = ChopWebRequestResponse.STATUS_CODE_NONE
+        request = requestResponded
+        error = requestError
+    }
+    
     init(usingSimulator simulator: ChopWebServerSimulator) {
         
         self.statusCode = simulator.statusCode
@@ -91,6 +103,11 @@ struct ChopWebRequestResponse {
     func findResponseValue(key: String) -> String {
 
         var dictionary = self.requestResponseData.first
+        
+        if dictionary == nil {
+            print("ChopWebRequestResponse: WARNING: Response has no Response Data to parse.")
+            return ""
+        }
         
         return dictionary![key] as! String
     }

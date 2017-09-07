@@ -12,17 +12,25 @@ struct UserRegistration {
 
     var email: String {
         
-        get { return registrationInfo[UserRegistration.KEY_Email]! }
+        return getInfo(key: UserRegistration.KEY_Email)
     }
 
     var password: String {
         
-        get { return registrationInfo[UserRegistration.KEY_Password]! }
+        return getInfo(key: UserRegistration.KEY_Password)
     }
 
     mutating func capture(from results: ChopRKResultArray) {
         
         results.extractTextQuestionResults(into: &registrationInfo)
+    }
+    
+    private func getInfo(key: String) -> String {
+    
+        if registrationInfo.keys.contains(key) {
+            return registrationInfo[key]!
+        }
+        return ""
     }
     
     private static let KEY_Password = "ORKRegistrationFormItemPassword"

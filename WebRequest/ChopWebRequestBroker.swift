@@ -34,6 +34,7 @@ struct ChopWebRequestBroker {
         // send request
         let dataTask = session.dataTask(with: urlRequest!, completionHandler: { (data, response, error) in
             
+
             if error != nil {
                 print("-------HTTP ERROR -----------")
                 print(error!)
@@ -42,15 +43,29 @@ struct ChopWebRequestBroker {
             
             if response != nil {
                 if let httpResponse = response as? HTTPURLResponse {
-                    
-                    let resp = ChopWebRequestResponse(httpResponse: httpResponse, data: data!)
-                    //let resp = ChopWebRequestResponse(usingSimulator:ChopWebServerSimulator(withParamsDictionary: paramsDictionary))
+    
+                    var resp = ChopWebRequestResponse(
+                        httpResponse: httpResponse,
+                        data: data!,
+                        requestResponded: request)
+
+                    resp.error = error
+
+//                    let resp = ChopWebRequestResponse(usingSimulator:ChopWebServerSimulator(withParamsDictionary: request.paramsDictionary))
   
                     onCompletion(resp, nil)
                     
                 } else {
                     print(response!)
                 }
+            }
+            else {
+
+                let resp = ChopWebRequestResponse(
+                    requestError: error!,
+                    requestResponded: request)
+
+                onCompletion(resp, nil)
             }
             /*
             let resp = ChopWebRequestResponse(usingSimulator:ChopWebServerSimulator(withParamsDictionary: Dictionary<String,String>()))

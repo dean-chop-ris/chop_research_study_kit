@@ -90,6 +90,7 @@ class ChopResearchStudyViewController: UIViewController {
              */
             performSegue(withIdentifier: ChopResearchStudyViewController.SID_ONBOARDING, sender: self)
             break
+            
         default:
             let alert = ChopUIAlert(forViewController: self,
                                     withTitle: "Workflow",

@@ -18,6 +18,8 @@ struct ChopWebRequest {
         }
     }
     
+    public private(set) var paramsDictionary = Dictionary<String, String>()
+    
     var urlRequest: URLRequest? {
     
         get
@@ -26,11 +28,6 @@ struct ChopWebRequest {
                 print("Error: cannot create URL: " + self.destinationUrl)
                 return nil
             }
-            
-            // set up dictionary of JSON parameters to be included in the web request
-            var paramsDictionary = Dictionary<String, String>()
-            
-            self.populateWebRequestParamsDictionary(dictionary: &paramsDictionary)
             
             // create params string to be included in request
             var params = ""
@@ -64,6 +61,9 @@ struct ChopWebRequest {
     
     init(withSource submissionSource: ChopWebRequestSource) {
         self.source = submissionSource
+        
+        // set up dictionary of JSON parameters to be included in the web request
+        self.populateWebRequestParamsDictionary(dictionary: &paramsDictionary)
     }
     
 
