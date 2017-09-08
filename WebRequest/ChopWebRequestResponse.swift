@@ -23,6 +23,8 @@ struct ChopWebRequestResponse {
     static let PV_ACCT_CONFIRMED = "account_confirmed"
     static let PV_ACCT_NOT_CONFIRMED = "account_not_confirmed"
     static let PV_PASSWORD_INCORRECT = "password_incorrect"
+    static let PV_LOGGED_IN = "logged_in"
+    static let PV_NOT_LOGGED_IN = "not_logged_in"
 
     public private(set) var statusCode: Int
     public private(set) var request: ChopWebRequest?
