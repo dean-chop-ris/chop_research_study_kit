@@ -49,10 +49,9 @@ struct ChopWebRequestBroker {
                         data: data!,
                         requestResponded: request)
 
-                    resp.error = error
+//                    var resp = ChopWebRequestResponse(usingSimulator:ChopWebServerSimulator(withParamsDictionary: request.paramsDictionary))
 
-//                    let resp = ChopWebRequestResponse(usingSimulator:ChopWebServerSimulator(withParamsDictionary: request.paramsDictionary))
-  
+                    resp.error = error
                     onCompletion(resp, nil)
                     
                 } else {

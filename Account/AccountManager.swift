@@ -20,6 +20,7 @@ struct AccountManager {
 
     // Parameter ID's
     static let PID_REQUEST_TYPE = "requestType"
+    static let PID_REMOTE_DATA_STORE_ID = "remote_data_store_id"
     
     
     var completionCallback: ModuleCompleteCallback?
