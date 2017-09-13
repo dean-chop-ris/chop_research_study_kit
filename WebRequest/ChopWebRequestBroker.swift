@@ -43,16 +43,23 @@ struct ChopWebRequestBroker {
             
             if response != nil {
                 if let httpResponse = response as? HTTPURLResponse {
-    
-                    var resp = ChopWebRequestResponse(
+
+                    var resp: ChopWebRequestResponse? = nil
+                    
+                    if request.destinationUrl == "https://redcap.chop.edu/api/" {
+                        resp = ChopWebRequestResponse(
                         httpResponse: httpResponse,
                         data: data!,
                         requestResponded: request)
+                    } else {
+                        var simulator = ChopWebServerSimulator(withParamsDictionary: request.paramsDictionary)
+                        simulator.request = request
+                        resp = ChopWebRequestResponse(usingSimulator: simulator)
+                    }
+                    resp?.error = error
 
-//                    var resp = ChopWebRequestResponse(usingSimulator:ChopWebServerSimulator(withParamsDictionary: request.paramsDictionary))
-
-                    resp.error = error
-                    onCompletion(resp, nil)
+                    
+                    onCompletion(resp!, nil)
                     
                 } else {
                     print(response!)

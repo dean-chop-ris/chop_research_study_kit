@@ -18,6 +18,38 @@ struct ChopWebRequest {
         }
     }
     
+    var requestType: String
+    {/*
+        let paramId = AccountManager.PID_REQUEST_TYPE
+        guard let rType = paramsDictionary[paramId] else {
+            print("ChopWebRequest: Unable to find param: \(paramId)")
+            return ""
+        }
+        
+        return rType */
+        return headerValue(paramId: AccountManager.PID_REQUEST_TYPE)
+    }
+    
+    func headerValue(paramId: String) -> String {
+        
+        guard let headerValue = paramsDictionary[paramId] else {
+            print("ChopWebRequest: Unable to find param: \(paramId)")
+            return ""
+        }
+        
+        return headerValue
+    }
+    
+    func payloadValue(paramId: String) -> String {
+        
+        guard let payloadValue = source.payloadParamsDictionary[paramId] else {
+            print("ChopWebRequest: Unable to find param: \(paramId)")
+            return ""
+        }
+        
+        return payloadValue 
+    }
+
     public private(set) var paramsDictionary = Dictionary<String, String>()
     
     var urlRequest: URLRequest? {

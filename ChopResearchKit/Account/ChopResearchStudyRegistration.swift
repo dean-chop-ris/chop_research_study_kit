@@ -26,11 +26,12 @@ extension ChopResearchStudyRegistration: ChopResearchStudyAccountLoginImplementa
     // MARK: ChopResearchStudyAccountLoginImplementation
     
     var requestType: String {
-        get {
-            return ChopWebRequestType.Registration.rawValue
-        }
+        
+        return ChopWebRequestType.Registration.rawValue
     }
-    
+
+    var stepIdContainingloginEmail: String { return ChopResearchStudyRegistrationStep.SID_RegistrationStep }
+
     var options : ChopResearchStudyModuleOptions! { get { return self.registrationOptions } }
 
     func loadSteps(into moduleStepContainer: inout ChopModuleStepCollection) {

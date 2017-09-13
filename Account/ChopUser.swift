@@ -12,6 +12,11 @@ import CoreData
 
 struct ChopUser {
     
+    var isValid: Bool {
+        
+        return _email != ChopUser.NULL_EMAIL
+    }
+    
     var remoteDataStoreId: String {
         get { return _remoteDataStoreId }
         set { _remoteDataStoreId = newValue }
@@ -29,38 +34,115 @@ struct ChopUser {
 
     init() {
         _remoteDataStoreId = "__Uninitialized remoteDataStoreId"
-        _email = "__Uninitialized email"
+        _email = ChopUser.NULL_EMAIL
     }
 
-    func commit() {
+    init(withEmail email: String) {
+
+        self.init()
+
+        let coreDataUser = get(emailToGet: email)
         
-        guard let appDelegate =
-            UIApplication.shared.delegate as? AppDelegate else {
-                return
+        if coreDataUser.isValid == false {
+            return
         }
         
-        let managedContext = appDelegate.persistentContainer.viewContext
-        let entity =
-            NSEntityDescription.entity(forEntityName: "ChopUserCoreDataEntity",
-                                       in: managedContext)!
-        let user = NSManagedObject(entity: entity,
-                                     insertInto: managedContext)
+        load(coreDataEntityToLoad: coreDataUser.entity!)
+    }
+
+    func commit() -> Bool {
+
+        var coreDataUser = get(emailToGet: _email)
         
-        user.setValue(_remoteDataStoreId, forKeyPath: "remoteDataStoreId")
-        user.setValue(_email, forKeyPath: "email")
+        if coreDataUser.isValid == false {
+            let entity = NSEntityDescription.entity(forEntityName: "ChopUserCoreDataEntity",
+                                                    in: coreDataUser.context!)!
+          
+            coreDataUser.entity = NSManagedObject(entity: entity,
+                                                  insertInto: coreDataUser.context) as? ChopUserCoreDataEntity
+        }
+
+        //
+        // Update Values
+        //
+        unload(destCoreDataEntity: coreDataUser.entity!)
         
+        //
+        // Save back to CoreData
+        //
         do {
-            try managedContext.save()
+            
+            try coreDataUser.context?.save()
+            
+            return true
         } catch let error as NSError {
             print("Could not save. \(error), \(error.userInfo)")
+            return false
         }
     }
     
-    //private var dbObject: NSManagedObject
+    private func get(emailToGet: String) -> CoreDataUser {
+        
+        var coreDataUser = CoreDataUser()
+
+        guard let appDelegate =
+            UIApplication.shared.delegate as? AppDelegate else {
+                return coreDataUser
+        }
+
+        coreDataUser.context = appDelegate.persistentContainer.viewContext
+        let userFetchRequest: NSFetchRequest<ChopUserCoreDataEntity> = ChopUserCoreDataEntity.fetchRequest()
+        let predicate = NSPredicate(format: "email == %@", emailToGet)
+        
+        userFetchRequest.predicate = predicate
+        
+        do {
+            let fetchedUserSet = try coreDataUser.context?.fetch(userFetchRequest)
+            
+            if fetchedUserSet?.count == 0 {
+                return coreDataUser
+            }
+            if (fetchedUserSet?.count)! > 1 {
+                print("Error: Core Data returned more than one value for email: " + email)
+                return coreDataUser
+            }
+            
+            coreDataUser.entity = fetchedUserSet?[0]
+            
+            return coreDataUser
+            
+        } catch let error as NSError {
+            print("Could not save. \(error), \(error.userInfo)")
+            return coreDataUser
+        }
+    }
+
+    private mutating func load(coreDataEntityToLoad: ChopUserCoreDataEntity) {
+        
+        _email = coreDataEntityToLoad.email!
+        _remoteDataStoreId = coreDataEntityToLoad.remoteDataStoreId!
+    }
+
+    private func unload(destCoreDataEntity: ChopUserCoreDataEntity) {
+        
+        destCoreDataEntity.email = _email
+        destCoreDataEntity.remoteDataStoreId = _remoteDataStoreId
+    }
+
     private var _remoteDataStoreId: String
     private var _email: String
+    
+    static private let NULL_EMAIL = "__Uninitialized email"
 }
 
+struct CoreDataUser {
+    var isValid: Bool {
+        return entity != nil
+    }
+
+    var entity: ChopUserCoreDataEntity? = nil
+    var context: NSManagedObjectContext? = nil
+}
 
 struct ChopUserCollection {
     
@@ -101,35 +183,7 @@ struct ChopUserCollection {
             }
         }
     }
-    /*
-    func filter(armName: String) -> ChopUserCollection {
-        
-        var newCollection = ChopUserCollection()
-        
-        for item in arms {
-            
-            if (item.name == armName) {
-                newCollection.add(item: item)
-            }
-        }
-        return newCollection
-    }
-    
-    mutating func loadFromJSON(data: [Dictionary<String, Any>], forInstrumentName armName: String = "") {
-        
-        let loadAll = armName.isEmpty
-        
-        for item in data {
-            
-            let arm = ChopUser(data: item)
-            
-            if loadAll || (arm.name == armName) {
-                arms += [arm]
-            }
-        }
-        
-    }
-    */
+
     mutating func removeAll() {
         
         users = [ChopUser]()
@@ -139,18 +193,7 @@ struct ChopUserCollection {
         
         users += [item]
     }
-   /*
-    func find(eventId: String) -> ChopUser? {
-        
-        for arm in arms {
-            
-            if eventId.contains(arm.armId) {
-                return arm
-            }
-        }
-        return nil
-    }
-    */
+    
     fileprivate var users = [ChopUser]()
 }
 

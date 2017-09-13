@@ -42,6 +42,26 @@ class ChopResearchStudy: NSObject {
         }
     }
     
+    /*
+    var loginEmail: String {
+        // This method is not consistent.
+        // At some point, the login info collected is no longer
+        // present within the login module step
+        // Cause? Unknown.
+        for key in modules.keys {
+            if modules[key]?.module is HoldsALoginEmail {
+                let loginEmailModule = modules[key]?.module as! HoldsALoginEmail
+                let loginEmail = loginEmailModule.loginEmail
+                
+                if loginEmail.isNotEmpty {
+                    return loginEmail
+                }
+            }
+        }
+        return ""
+    }
+    */
+    
     init(initWorkflow: ChopResearchStudyWorkflow) {
         self.workflow = initWorkflow
     }

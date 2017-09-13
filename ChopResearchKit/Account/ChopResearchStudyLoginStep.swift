@@ -15,8 +15,12 @@ struct ChopResearchStudyLoginStep {
     static let PID_EMAIL = "email"
     static let PID_PASSWORD = "password"
 
+    // Step ID's
+    static let SID_LOGIN = "LoginStep"
+    
+    
     init() {
-        rkLoginStep = ORKLoginStep(identifier: "LoginStep",
+        rkLoginStep = ORKLoginStep(identifier: ChopResearchStudyLoginStep.SID_LOGIN,
                                    title: "Login", text: "Please log in",
                                    loginViewControllerClass: ChopLoginStepViewController.self)
     }
@@ -78,6 +82,15 @@ extension ChopResearchStudyLoginStep: GeneratesWebRequestData {
     
 }
 
+/*
+extension ChopResearchStudyLoginStep: HoldsALoginEmail {
+    
+    public var loginEmail: String {
+        
+        return login.email
+    }
+}
+*/
 
 class ChopLoginStepViewController: ORKLoginStepViewController {
     

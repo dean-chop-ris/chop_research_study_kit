@@ -109,8 +109,8 @@ struct RedcapStudyManager {
         print("RedcapStudyManager.load(): begin instrument")
         group.enter()
         queue.sync {
-            let mappingsSource = RedcapInstrumentsWebRequestSource(client: self)
-            let request = ChopWebRequest(withSource: mappingsSource)
+            let instSource = RedcapInstrumentsWebRequestSource(client: self)
+            let request = ChopWebRequest(withSource: instSource)
             
             broker.send(request: request, onCompletion: { (response, error) in
                 print("RedcapStudyManager.load(): onComp instrument")
@@ -166,6 +166,7 @@ struct RedcapStudyManager {
 
     mutating func extract(requestId: String, fromResponse response: ChopWebRequestResponse) {
         
+        print("RedcapStudyManager.extract(): \(requestId)")
         if requestId == "metadata" {
             items.loadFromJSON(data: response.data)
         }
@@ -189,6 +190,7 @@ struct RedcapStudyManager {
         if requestId == "user" {
             userRecord = RedcapUserRecord(data: response.data.first!)
         }
+        print("RedcapStudyManager.extract(): \(requestId) Done")
     }
     
     fileprivate var items = RedcapInstrumentFieldCollection()

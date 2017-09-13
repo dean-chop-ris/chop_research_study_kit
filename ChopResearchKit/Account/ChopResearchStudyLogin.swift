@@ -24,6 +24,8 @@ extension ChopResearchStudyLogin: ChopResearchStudyAccountLoginImplementation {
     
     var requestType : String { get { return ChopWebRequestType.Login.rawValue } }
 
+    var stepIdContainingloginEmail: String { return ChopResearchStudyLoginStep.SID_LOGIN }
+
     var options : ChopResearchStudyModuleOptions! { get { return self.loginOptions } }
      
     func loadSteps(into moduleStepContainer: inout ChopModuleStepCollection) {

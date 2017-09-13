@@ -22,6 +22,21 @@ struct AccountManager {
     static let PID_REQUEST_TYPE = "requestType"
     static let PID_REMOTE_DATA_STORE_ID = "remote_data_store_id"
     
+    /*
+    var loginEmail: String
+    {
+        let stepId = impl?.stepIdContainingloginEmail
+        let step = moduleSteps.findStep(withId: stepId!)
+
+        if step is HoldsALoginEmail {
+            let loginEmailStep = step as! HoldsALoginEmail
+            
+            return loginEmailStep.loginEmail
+        }
+        
+        return ""
+    }
+    */
     
     var completionCallback: ModuleCompleteCallback?
     public private(set) var rkLoginTask : ChopRKTask!
@@ -140,9 +155,12 @@ extension AccountManager: ChopWebRequestSource {
 }
 
 
-
-
-
+/*
+protocol HoldsALoginEmail {
+    
+    var loginEmail: String { get }
+}
+*/
 
 
 

@@ -13,6 +13,7 @@ protocol ChopResearchStudyAccountLoginImplementation {
     // TODO: Consider base protocol (for this and other protocol: ChopPasscodeModuleImplementation
     var options : ChopResearchStudyModuleOptions! { get }
     var requestType : String { get }
+    var stepIdContainingloginEmail: String { get }
 
     func loadSteps(into moduleStepContainer: inout ChopModuleStepCollection)
     
@@ -24,5 +25,11 @@ protocol ChopResearchStudyAccountLoginImplementation {
 
     // TODO: TBD?
     func createPayloadParamsDictionary(fromCompletedModuleSteps moduleSteps: ChopModuleStepCollection) -> Dictionary<String, String>
+    
+}
+
+extension ChopResearchStudyAccountLoginImplementation {
+    
+    var stepIdContainingloginEmail: String { return "None" }
     
 }

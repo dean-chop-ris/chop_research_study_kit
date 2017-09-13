@@ -30,4 +30,5 @@ struct ChopWorkflowAction {
     var userMessage: String = ""
     var userMessageTitle: String = ""
     var actionType = ChopWorkflowActionTypeEnum.None
+    var options = ChopWorkflowActionOptions()
 }

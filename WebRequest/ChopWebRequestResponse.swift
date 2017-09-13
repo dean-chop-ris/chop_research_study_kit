@@ -45,18 +45,29 @@ struct ChopWebRequestResponse {
                 return false
             }
             
-            if let val = self.requestResponseData.first?[ChopWebRequestResponse.PID_REQUEST_RESULT].debugDescription {
-                return val == ChopWebRequestResponse.PV_SUCCESS
-            }
-            return true
+            let val = responseDataValue(paramId: ChopWebRequestResponse.PID_REQUEST_RESULT)
+
+            return val == ChopWebRequestResponse.PV_SUCCESS
         }
     }
 
+    
     public var data: [Dictionary<String,Any>] {
         
         get { return self.requestResponseData }
     }
     
+    
+    func responseDataValue(paramId: String) -> String {
+        
+        guard let parameterValue = requestResponseData.first?[paramId] else {
+            print("ChopWebRequestResponse (\(String(describing: request?.requestType))): Unable to find param: \(paramId)")
+            return ""
+        }
+        
+        return parameterValue as! String
+    }
+
     init(httpResponse: HTTPURLResponse, data: Data, requestResponded: ChopWebRequest) {
         
         statusCode = httpResponse.statusCode
@@ -89,8 +100,9 @@ struct ChopWebRequestResponse {
     
     init(usingSimulator simulator: ChopWebServerSimulator) {
         
-        self.statusCode = simulator.statusCode
-        self.requestResponseData += [simulator.simulatedResponseHeaders]
+        statusCode = simulator.statusCode
+        request = simulator.request
+        requestResponseData += [simulator.simulatedResponseHeaders]
     }
 
     private mutating func parseJSON(data responseData: Data) {

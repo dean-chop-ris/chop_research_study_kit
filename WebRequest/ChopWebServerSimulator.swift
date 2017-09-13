@@ -12,6 +12,7 @@ struct ChopWebServerSimulator {
 
     var statusCode: Int = 200
     var paramsDictionary: Dictionary<String, String>
+    var request: ChopWebRequest?
     
     var simulatedResponseHeaders: Dictionary<String, String> {
         get {
@@ -28,6 +29,15 @@ struct ChopWebServerSimulator {
                     break
                 case ChopWebRequestType.Confirmation.rawValue:
                     responseDictionary = generateVerificationResponse()
+                    break
+                case ChopWebRequestType.LoginState.rawValue:
+                    responseDictionary = generateLoginStateResponse()
+                    break
+                case ChopWebRequestType.Logout.rawValue:
+                    responseDictionary = generateLogoutResponse()
+                    break
+                case ChopWebRequestType.Update.rawValue:
+                    responseDictionary = generateUpdateResponse()
                     break
                 default:
                     break
@@ -69,6 +79,7 @@ struct ChopWebServerSimulator {
         
         responseDictionary[AccountManager.PID_REQUEST_TYPE] = ChopWebRequestType.Login.rawValue
         responseDictionary[ChopWebRequestResponse.PID_REQUEST_RESULT] = requestResult
+        responseDictionary[AccountManager.PID_REMOTE_DATA_STORE_ID] = "23C837A0-E9CE-4A25-81E6-EC21D5E26674"
         
         return responseDictionary
     }
@@ -88,4 +99,45 @@ struct ChopWebServerSimulator {
         return responseDictionary
     }
 
+    func generateLoginStateResponse() -> Dictionary<String, String> {
+        var responseDictionary = Dictionary<String, String>()
+
+        let requestResult = ChopWebRequestResponse.PV_LOGGED_IN
+        //let requestResult = ChopWebRequestResponse.PV_NOT_LOGGED_IN
+        //let requestResult = ChopWebRequestResponse.PV_ACCT_NOT_FOUND
+        //let requestResult = ChopWebRequestResponse.PV_ACCT_NOT_CONFIRMED
+
+        responseDictionary[AccountManager.PID_REQUEST_TYPE] = ChopWebRequestType.LoginState.rawValue
+        responseDictionary[ChopWebRequestResponse.PID_REQUEST_RESULT] = requestResult
+        
+        return responseDictionary
+    }
+    
+    func generateLogoutResponse() -> Dictionary<String, String> {
+        var responseDictionary = Dictionary<String, String>()
+
+        let requestResult = ChopWebRequestResponse.PV_SUCCESS
+        //let requestResult = ChopWebRequestResponse.PV_NOT_LOGGED_IN
+        //let requestResult = ChopWebRequestResponse.PV_ACCT_NOT_FOUND
+        //let requestResult = ChopWebRequestResponse.PV_ACCT_NOT_CONFIRMED
+
+        responseDictionary[AccountManager.PID_REQUEST_TYPE] = ChopWebRequestType.Logout.rawValue
+        responseDictionary[ChopWebRequestResponse.PID_REQUEST_RESULT] = requestResult
+        
+        return responseDictionary
+    }
+    
+    func generateUpdateResponse() -> Dictionary<String, String> {
+        var responseDictionary = Dictionary<String, String>()
+
+        let requestResult = ChopWebRequestResponse.PV_SUCCESS
+        //let requestResult = ChopWebRequestResponse.PV_NOT_LOGGED_IN
+        //let requestResult = ChopWebRequestResponse.PV_ACCT_NOT_FOUND
+        //let requestResult = ChopWebRequestResponse.PV_ACCT_NOT_CONFIRMED
+
+        responseDictionary[AccountManager.PID_REQUEST_TYPE] = ChopWebRequestType.Update.rawValue
+        responseDictionary[ChopWebRequestResponse.PID_REQUEST_RESULT] = requestResult
+        
+        return responseDictionary
+    }
 }

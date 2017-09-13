@@ -81,3 +81,13 @@ extension ChopResearchStudyRegistrationStep: GeneratesWebRequestData {
     }
     
 }
+
+/*
+extension ChopResearchStudyRegistrationStep: HoldsALoginEmail {
+    
+    public var loginEmail: String {
+        
+        return registration.email
+    }
+}
+*/
